@@ -1150,6 +1150,21 @@ files = [
 ]
 
 [[package]]
+name = "sqlglot"
+version = "23.0.5"
+description = "An easily customizable SQL parser and transpiler"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "sqlglot-23.0.5-py3-none-any.whl", hash = "sha256:12aadd50775209573e7dfa0136f5769da865de3d5954e8e88a02eb0081d1ad6b"},
+    {file = "sqlglot-23.0.5.tar.gz", hash = "sha256:68386c5aebdc9a1c74e2a623f6373805a2f839d205d46945258dde5ac692d515"},
+]
+
+[package.extras]
+dev = ["duckdb (>=0.6)", "maturin (>=1.4,<2.0)", "mypy", "pandas", "pandas-stubs", "pdoc", "pre-commit", "pyspark", "python-dateutil", "ruff (==0.3.2)", "types-python-dateutil", "typing-extensions"]
+rs = ["sqlglotrs (==0.1.2)"]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -1308,4 +1323,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
-content-hash = "a3b14f6f7cdd13dce3b5a26933ebce280805aba59061c1f199e1e5f2ad527883"
+content-hash = "dad8d0341f8751dfc77093a82fb3107de31b1133da3fae0df854858e8885cf6e"

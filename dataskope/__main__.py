@@ -1,4 +1,4 @@
-from dataskope.cli import main
+from dataskope.cli import cli
 
 if __name__ == "__main__":
-    main()
+    cli()

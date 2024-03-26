@@ -1,2 +1,2 @@
 
-from dataskope.cli.main import main
+from dataskope.cli.main import cli
