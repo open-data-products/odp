@@ -10,7 +10,7 @@ def read_queries(query_file):
     # Read queries from a CSV file and return a list of dictionaries where each key is a column in the CSV
     with open(query_file) as f:
         csv_reader = csv.reader(f)
-        header = next(csv_reader)
+        header = list(map(str.upper, next(csv_reader)))
         return [dict(zip(header, row)) for row in csv_reader]
 
 
