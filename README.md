@@ -16,6 +16,15 @@ Currently supports Snowflake and BigQuery, support for Redshift and other wareho
 - **Github repository**: <https://github.com/dexhorthy/dataskope/>
 - **Documentation** <https://dexhorthy.github.io/dataskope/>
 
+Dev Usage
+-----------------
+
+    poetry install
+
+    python -m dataskope
+
+    # probablye some CLI version too
+
 Maintainers
 -----------------
 
