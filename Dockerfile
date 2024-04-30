@@ -16,6 +16,6 @@ COPY poetry.lock pyproject.toml /code/
 RUN poetry install --no-interaction --no-ansi --no-root --no-dev
 
 # Copy Python code to the Docker image
-COPY dataskope /code/dataskope/
+COPY odp /code/odp/
 
-CMD [ "python", "dataskope/foo.py"]
+CMD [ "python", "odp/foo.py"]

@@ -1,1 +1,1 @@
-::: dataskope.foo
+::: odp.foo

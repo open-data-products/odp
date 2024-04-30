@@ -1,11 +1,11 @@
-site_name: dataskope
-repo_url: https://github.com/dexhorthy/dataskope
-site_url: https://dexhorthy.github.io/dataskope
-site_description: dataskope
-site_author: Dataskope Authors
+site_name: odp
+repo_url: https://github.com/open-data-products/odp
+site_url: https://open-data-products.github.io/odp
+site_description: odp
+site_author: odp Authors
 edit_uri: edit/main/docs/
-repo_name: dexhorthy/dataskope
-copyright: Maintained by <a href="https://dexhorthy.com">Florian</a>.
+repo_name: open-data-products/odp
+copyright: Maintained by <a href="https://open-data-products.com">Florian</a>.
 
 nav:
   - Home: index.md
@@ -43,9 +43,9 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/dexhorthy/dataskope
+      link: https://github.com/open-data-products/odp
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/dataskope
+      link: https://pypi.org/project/odp
 
 markdown_extensions:
   - toc:

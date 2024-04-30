@@ -1,10 +1,10 @@
 import click
 
-from dataskope.core.snowflake import load_credentials, get_snowflake_schema, get_snowflake_queries
-from dataskope.core.detect_unused import detect_unused_columns as detect_unused_columns_core
+from odp.core.snowflake import load_credentials, get_snowflake_schema, get_snowflake_queries
+from odp.core.detect_unused import detect_unused_columns as detect_unused_columns_core
 
 
-@click.group(name="dataskope")
+@click.group(name="odp")
 def cli():
     pass
 

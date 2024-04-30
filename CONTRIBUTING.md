@@ -1,4 +1,4 @@
-# Contributing to `dataskope`
+# Contributing to `odp`
 
 Contributions are welcome, and they are greatly appreciated!
 Every little bit helps, and credit will always be given.
@@ -9,7 +9,7 @@ You can contribute in many ways:
 
 ## Report Bugs
 
-Report bugs at https://github.com/dexhorthy/dataskope/issues
+Report bugs at https://github.com/open-data-products/odp/issues
 
 If you are reporting a bug, please include:
 
@@ -33,7 +33,7 @@ Cookiecutter PyPackage could always use more documentation, whether as part of t
 
 ## Submit Feedback
 
-The best way to send feedback is to file an issue at https://github.com/dexhorthy/dataskope/issues.
+The best way to send feedback is to file an issue at https://github.com/open-data-products/odp/issues.
 
 If you are proposing a new feature:
 
@@ -44,22 +44,22 @@ If you are proposing a new feature:
 
 # Get Started!
 
-Ready to contribute? Here's how to set up `dataskope` for local development.
+Ready to contribute? Here's how to set up `odp` for local development.
 Please note this documentation assumes you already have `poetry` and `Git` installed and ready to go.
 
-1. Fork the `dataskope` repo on GitHub.
+1. Fork the `odp` repo on GitHub.
 
 2. Clone your fork locally:
 
 ```bash
 cd <directory_in_which_repo_should_be_created>
-git clone git@github.com:YOUR_NAME/dataskope.git
+git clone git@github.com:YOUR_NAME/odp.git
 ```
 
 3. Now we need to install the environment. Navigate into the directory
 
 ```bash
-cd dataskope
+cd odp
 ```
 
 If you are using `pyenv`, select a version to use locally. (See installed versions with `pyenv versions`)

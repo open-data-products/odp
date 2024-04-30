@@ -1,4 +1,4 @@
-from dataskope.foo import foo
+from odp.foo import foo
 
 
 def test_foo():
