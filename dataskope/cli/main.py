@@ -1,5 +1,6 @@
 import click
 
+from dataskope.core.snowflake import load_credentials, get_snowflake_schema, get_snowflake_queries
 from dataskope.core.detect_unused import detect_unused_columns as detect_unused_columns_core
 
 
@@ -7,16 +8,24 @@ from dataskope.core.detect_unused import detect_unused_columns as detect_unused_
 def cli():
     pass
 
+
 @cli.command('detect', help="""
 Detect unused columns in SQL queries. 
 Requires two files: a query file and an information schema file. 
 Run `show-queries` to see the SQL queries to run against your 
 Snowflake instance to generate the two files.""")
-@click.option('--queries_file', required=True,
-              help='The SQL query file to analyze.')
-@click.option('--info_schema_file', required=True,
+@click.option('--queries_file', help='The SQL query file to analyze.')
+@click.option('--info_schema_file',
               help='The file containing the information schema for the database.')
-def detect_unused_columns(queries_file: str, info_schema_file: str):
+@click.option('--credentials_from_env',
+              help='Load snowflake credentials from the environment.',
+              is_flag=True)
+def detect_unused_columns(queries_file: str, info_schema_file: str, credentials_from_env: bool):
+    if credentials_from_env:
+        schema = get_snowflake_schema()
+        queries = get_snowflake_queries()
+
+
     detect_unused_columns_core(queries_file, info_schema_file)
 
 

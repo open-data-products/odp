@@ -1,6 +1,7 @@
 import csv
 from collections import Counter
 
+import pandas as pd
 from sqlglot import parse_one, exp
 from sqlglot.optimizer.qualify import qualify
 from sqlglot.optimizer.scope import find_all_in_scope, build_scope
@@ -87,6 +88,9 @@ def summarize_columns(columns):
     # Flatten the col vals
     cols = [item for sublist in columns for item in sublist]
     return Counter(cols)
+
+def detect_unused_columns_df(queries: list[dict], info_schema: list[dict]):
+    raise NotImplementedError("soon")
 
 def detect_unused_columns(query_file: str, info_schema_file: str):
 
