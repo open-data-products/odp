@@ -1,42 +1,65 @@
 import csv
 from collections import Counter
 
-import pandas as pd
 from sqlglot import parse_one, exp
 from sqlglot.optimizer.qualify import qualify
 from sqlglot.optimizer.scope import find_all_in_scope, build_scope
 
+from odp.core.types import SchemaRow, QueryRow
 
-def read_queries(query_file):
+
+def read_queries(query_file) -> list[QueryRow]:
     # Read queries from a CSV file and return a list of dictionaries where each key is a column in the CSV
     with open(query_file) as f:
         csv_reader = csv.reader(f)
         header = list(map(str.upper, next(csv_reader)))
-        return [dict(zip(header, row)) for row in csv_reader]
+        return [QueryRow(**zip(header, row)) for row in csv_reader]
 
 
-def read_info_schema(info_schema_file):
+def read_info_schema_from_file(info_schema_file) -> tuple[dict, list[tuple]]:
     # Read the info schema from a CSV file and return it as both a nested dictionary and a flat list
     # Format is: catalog -> schema -> table name -> column name
-    schema = {}
-    flat_schema = []
+    schema_rows: list[SchemaRow] = []
     with open(info_schema_file) as f:
         csv_reader = csv.reader(f)
         next(csv_reader)  # Skip header
         for row in csv_reader:
             catalog, schema_name, table_name, column_name = map(str.upper, row)
-            if catalog not in schema:
-                schema[catalog] = {}
-            if schema_name not in schema[catalog]:
-                schema[catalog][schema_name] = {}
-            if table_name not in schema[catalog][schema_name]:
-                schema[catalog][schema_name][table_name] = {}
-            schema[catalog][schema_name][table_name][column_name] = "DUMMY"
-            flat_schema.append((catalog, schema_name, table_name, column_name))
-    return schema, flat_schema
+            schema_rows.append(SchemaRow(
+                TABLE_CATALOG=catalog,
+                TABLE_SCHEMA=schema_name,
+                TABLE_NAME=table_name,
+                COLUMN_NAME=column_name,
+            ))
+
+    return build_info_schema(schema_rows)
 
 
-def extract_columns(query_text, database_name, catalog_name, schema):
+def build_info_schema(schema_rows: list[SchemaRow]) -> tuple[dict, list[tuple]]:
+    sqlglot_mapping_schema = {}
+    flat_schema: list[tuple] = []
+    for row in schema_rows:
+        catalog, schema_name, table_name, column_name = \
+            (row.TABLE_CATALOG, row.TABLE_SCHEMA, row.TABLE_NAME, row.COLUMN_NAME)
+
+        if catalog not in sqlglot_mapping_schema:
+            sqlglot_mapping_schema[catalog] = {}
+        if schema_name not in sqlglot_mapping_schema[catalog]:
+            sqlglot_mapping_schema[catalog][schema_name] = {}
+        if table_name not in sqlglot_mapping_schema[catalog][schema_name]:
+            sqlglot_mapping_schema[catalog][schema_name][table_name] = {}
+        sqlglot_mapping_schema[catalog][schema_name][table_name][column_name] = "DUMMY"
+        flat_schema.append((catalog, schema_name, table_name, column_name))
+
+    return sqlglot_mapping_schema, flat_schema
+
+
+def extract_columns(
+    query_text: str,
+    database_name: str,
+    catalog_name: str,
+    schema: dict,
+):
     # Extract the columns from a query that map to actual columns in a table
     # Based on https://github.com/tobymao/sqlglot/blob/main/posts/ast_primer.md
     try:
@@ -89,24 +112,12 @@ def summarize_columns(columns):
     cols = [item for sublist in columns for item in sublist]
     return Counter(cols)
 
-def detect_unused_columns_df(queries: list[dict], info_schema: list[dict]):
-    raise NotImplementedError("soon")
-
-def detect_unused_columns(query_file: str, info_schema_file: str):
-
-    queries = read_queries(query_file)
-    print(f"Read {len(queries)} queries from {query_file}")
-
-    info_schema, info_schema_flat = read_info_schema(info_schema_file)
-    print(
-        f"Read {len(info_schema_flat)} information schema rows from {info_schema_file}"
-    )
-
+def detect_unused_columns_generic(queries: list[QueryRow], info_schema: dict, info_schema_flat: list[tuple]):
     cols = [
         extract_columns(
-            query["QUERY_TEXT"],
-            database_name=query["DATABASE_NAME"].upper(),
-            catalog_name=query["SCHEMA_NAME"].upper(),
+            query.QUERY_TEXT,
+            database_name=query.DATABASE_NAME.upper(),
+            catalog_name=query.SCHEMA_NAME.upper(),
             schema=info_schema,
         )
         for query in queries
@@ -125,3 +136,16 @@ def detect_unused_columns(query_file: str, info_schema_file: str):
     print(f"Unused columns ({len(unused_cols)}):")
     for col in unused_cols:
         print(col)
+
+def detect_unused_columns(query_file: str, info_schema_file: str):
+
+    queries = read_queries(query_file)
+    print(f"Read {len(queries)} queries from {query_file}")
+
+    info_schema, info_schema_flat = read_info_schema_from_file(info_schema_file)
+    print(
+        f"Read {len(info_schema_flat)} information schema rows from {info_schema_file}"
+    )
+
+    return detect_unused_columns_generic(queries, info_schema, info_schema_flat)
+
