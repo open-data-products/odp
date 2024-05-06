@@ -13,7 +13,7 @@ def read_queries(query_file) -> list[QueryRow]:
     with open(query_file) as f:
         csv_reader = csv.reader(f)
         header = list(map(str.upper, next(csv_reader)))
-        return [QueryRow(**zip(header, row)) for row in csv_reader]
+        return [QueryRow(**dict(zip(header, row))) for row in csv_reader]
 
 
 def read_info_schema_from_file(info_schema_file) -> tuple[dict, list[tuple]]:
@@ -25,12 +25,14 @@ def read_info_schema_from_file(info_schema_file) -> tuple[dict, list[tuple]]:
         next(csv_reader)  # Skip header
         for row in csv_reader:
             catalog, schema_name, table_name, column_name = map(str.upper, row)
-            schema_rows.append(SchemaRow(
-                TABLE_CATALOG=catalog,
-                TABLE_SCHEMA=schema_name,
-                TABLE_NAME=table_name,
-                COLUMN_NAME=column_name,
-            ))
+            schema_rows.append(
+                SchemaRow(
+                    TABLE_CATALOG=catalog,
+                    TABLE_SCHEMA=schema_name,
+                    TABLE_NAME=table_name,
+                    COLUMN_NAME=column_name,
+                )
+            )
 
     return build_info_schema(schema_rows)
 
@@ -39,8 +41,12 @@ def build_info_schema(schema_rows: list[SchemaRow]) -> tuple[dict, list[tuple]]:
     sqlglot_mapping_schema = {}
     flat_schema: list[tuple] = []
     for row in schema_rows:
-        catalog, schema_name, table_name, column_name = \
-            (row.TABLE_CATALOG, row.TABLE_SCHEMA, row.TABLE_NAME, row.COLUMN_NAME)
+        catalog, schema_name, table_name, column_name = (
+            row.TABLE_CATALOG,
+            row.TABLE_SCHEMA,
+            row.TABLE_NAME,
+            row.COLUMN_NAME,
+        )
 
         if catalog not in sqlglot_mapping_schema:
             sqlglot_mapping_schema[catalog] = {}
@@ -94,14 +100,12 @@ def extract_columns(
         if type(table) != exp.Table:
             continue
 
-        columns.append(
-            (
-                table.catalog,
-                table.db,
-                table.name,
-                column.this.this,
-            )
-        )
+        columns.append((
+            table.catalog,
+            table.db,
+            table.name,
+            column.this.this,
+        ))
     return columns
 
 
@@ -111,6 +115,7 @@ def summarize_columns(columns):
     # Flatten the col vals
     cols = [item for sublist in columns for item in sublist]
     return Counter(cols)
+
 
 def detect_unused_columns_generic(queries: list[QueryRow], info_schema: dict, info_schema_flat: list[tuple]):
     cols = [
@@ -137,15 +142,12 @@ def detect_unused_columns_generic(queries: list[QueryRow], info_schema: dict, in
     for col in unused_cols:
         print(col)
 
-def detect_unused_columns(query_file: str, info_schema_file: str):
 
+def detect_unused_columns(query_file: str, info_schema_file: str):
     queries = read_queries(query_file)
     print(f"Read {len(queries)} queries from {query_file}")
 
     info_schema, info_schema_flat = read_info_schema_from_file(info_schema_file)
-    print(
-        f"Read {len(info_schema_flat)} information schema rows from {info_schema_file}"
-    )
+    print(f"Read {len(info_schema_flat)} information schema rows from {info_schema_file}")
 
     return detect_unused_columns_generic(queries, info_schema, info_schema_flat)
-

@@ -14,6 +14,7 @@ class SnowflakeCredentials(BaseModel):
     snowflake_database: str
     snowflake_role: str
 
+
 def load_credentials() -> SnowflakeCredentials:
     """
     Load snowflake credentials from the .env-formatted file object
@@ -27,6 +28,7 @@ def load_credentials() -> SnowflakeCredentials:
         snowflake_role=os.environ["SNOWFLAKE_ROLE"],
     )
 
+
 def get_snowflake_queries() -> list[QueryRow]:
     credentials = load_credentials()
 
@@ -36,7 +38,7 @@ def get_snowflake_queries() -> list[QueryRow]:
         account=credentials.snowflake_account,
         warehouse=credentials.snowflake_warehouse,
         database=credentials.snowflake_database,
-        role=credentials.snowflake_role
+        role=credentials.snowflake_role,
     )
 
     # Create a cursor object.
@@ -64,7 +66,7 @@ def get_snowflake_schema() -> list[SchemaRow]:
         account=credentials.snowflake_account,
         warehouse=credentials.snowflake_warehouse,
         database=credentials.snowflake_database,
-        role=credentials.snowflake_role
+        role=credentials.snowflake_role,
     )
 
     # Create a cursor object.
