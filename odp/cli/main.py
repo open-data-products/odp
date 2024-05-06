@@ -1,7 +1,8 @@
 import click
 
 from odp.core.snowflake import load_credentials, get_snowflake_schema, get_snowflake_queries
-from odp.core.detect_unused import detect_unused_columns as detect_unused_columns_core
+from odp.core.detect_unused import detect_unused_columns as detect_unused_columns_core, \
+    detect_unused_columns_generic, build_info_schema
 
 
 @click.group(name="odp")
@@ -20,13 +21,18 @@ Snowflake instance to generate the two files.""")
 @click.option('--credentials_from_env',
               help='Load snowflake credentials from the environment.',
               is_flag=True)
-def detect_unused_columns(queries_file: str, info_schema_file: str, credentials_from_env: bool):
+def detect_unused_columns(queries_file: str | None, info_schema_file: str | None, credentials_from_env: bool):
     if credentials_from_env:
         schema = get_snowflake_schema()
+        info_schema, info_schema_flat = build_info_schema(schema)
         queries = get_snowflake_queries()
+        detect_unused_columns_generic(queries, info_schema, info_schema_flat)
+    elif queries_file and info_schema_file:
+        detect_unused_columns_core(queries_file, info_schema_file)
+    else:
+        raise ValueError("crendentials_from_env must be set, or both queries_file and info_schema_file must be provided")
 
 
-    detect_unused_columns_core(queries_file, info_schema_file)
 
 
 @cli.command("show-queries")
