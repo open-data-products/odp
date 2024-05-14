@@ -1,11 +1,11 @@
 import csv
 from collections import Counter
 
-from sqlglot import parse_one, exp
+from sqlglot import exp, parse_one
 from sqlglot.optimizer.qualify import qualify
-from sqlglot.optimizer.scope import find_all_in_scope, build_scope
+from sqlglot.optimizer.scope import build_scope, find_all_in_scope
 
-from odp.core.types import SchemaRow, QueryRow, Dialect, Grain
+from odp.core.types import Dialect, QueryRow, SchemaRow
 
 
 def read_queries(query_file) -> list[QueryRow]:
@@ -75,7 +75,7 @@ def extract_columns(
             parsed, schema=schema, dialect=dialect.value
         )  # Qualify (add schema) and expand * to explicit columns
         root = build_scope(qualified)
-    except Exception as e:
+    except Exception:
         # todo - debug log these / write to file
         # print("Error parsing query", e, query_text)
         return []
@@ -101,12 +101,14 @@ def extract_columns(
         if type(table) != exp.Table:
             continue
 
-        columns.append((
-            table.catalog,
-            table.db,
-            table.name,
-            column.this.this,
-        ))
+        columns.append(
+            (
+                table.catalog,
+                table.db,
+                table.name,
+                column.this.this,
+            )
+        )
     return columns
 
 
@@ -116,6 +118,7 @@ def summarize_columns(columns):
     # Flatten the col vals
     cols = [item for sublist in columns for item in sublist]
     return Counter(cols)
+
 
 def detect_unused_columns(
     queries: list[QueryRow],
@@ -147,4 +150,3 @@ def detect_unused_columns(
     print(f"Unused columns ({len(unused_cols)}):")
     for col in unused_cols:
         print(col)
-

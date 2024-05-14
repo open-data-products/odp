@@ -10,14 +10,12 @@
 
 Detect unused tables and columns in your SQL database.
 
-
 Currently supports Snowflake and BigQuery, support for Redshift and other warehouses [coming soon](/open-data-products/odp/issues).
 
 - **Github repository**: <https://github.com/open-data-products/odp/>
 - **Documentation** <https://open-data-products.github.io/odp/>
 
-Dev Usage
------------------
+## Dev Usage
 
     poetry install
 
@@ -34,7 +32,7 @@ or, run with snowflake env:
     ODP_SNOWFLAKE_ROLE=your_role           # optional
     EOF
 
-    poetry run python -m odp detect-unused 
+    poetry run python -m odp detect-unused
 
 or, run with bigquery env:
 
@@ -45,11 +43,9 @@ or, run with bigquery env:
 
     poetry run python -m odp detect-unused --dialect=bigquery
 
-Maintainers
------------------
+## Maintainers
 
-Made with :heart: by 
+Made with :heart: by
 
-- [metalytics.dev](https://metalytics.dev) 
+- [metalytics.dev](https://metalytics.dev)
 - [Twing Data](https://twingdata.com).
-

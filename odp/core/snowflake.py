@@ -3,7 +3,7 @@ import os
 import snowflake.connector
 from pydantic import BaseModel
 
-from odp.core.types import SchemaRow, QueryRow
+from odp.core.types import QueryRow, SchemaRow
 
 
 class SnowflakeCredentials(BaseModel):
@@ -28,6 +28,7 @@ def load_snowflake_credentials() -> SnowflakeCredentials:
         snowflake_role=os.environ.get("ODP_SNOWFLAKE_ROLE"),
     )
 
+
 def get_snowflake_queries(credentials: SnowflakeCredentials) -> list[QueryRow]:
     conn = snowflake.connector.connect(
         user=credentials.snowflake_user,
@@ -51,13 +52,7 @@ LIMIT 10000; -- or start_time > $SOME_DATE to get columns unused in the last N d
         """
     cur.execute(sql)
 
-    return [
-        QueryRow(
-            QUERY_TEXT=row[0],
-            DATABASE_NAME=row[1],
-            SCHEMA_NAME=row[2]
-        ) for row in cur.fetchall()
-    ]
+    return [QueryRow(QUERY_TEXT=row[0], DATABASE_NAME=row[1], SCHEMA_NAME=row[2]) for row in cur.fetchall()]
 
 
 def get_snowflake_schema(credentials: SnowflakeCredentials) -> list[SchemaRow]:
@@ -91,5 +86,6 @@ WHERE TABLE_SCHEMA != 'INFORMATION_SCHEMA';
             TABLE_SCHEMA=row[1],
             TABLE_NAME=row[2],
             COLUMN_NAME=row[3],
-        ) for row in cur.fetchall()
+        )
+        for row in cur.fetchall()
     ]

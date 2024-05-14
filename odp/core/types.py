@@ -22,12 +22,14 @@ class Dialect(Enum):
     bigquery = "bigquery"
     redshift = "redshift"
 
+
 def validate_dialect(ctx, param, value):
     try:
         return Dialect(value)
     except ValueError:
         raise click.BadParameter(
-            f'Invalid dialect value: {value}. Valid values are: {", ".join(d.value for d in Dialect)}')
+            f'Invalid dialect value: {value}. Valid values are: {", ".join(d.value for d in Dialect)}'
+        ) from None
 
 
 class Grain(Enum):
@@ -35,9 +37,11 @@ class Grain(Enum):
     table = "table"
     column = "column"
 
+
 def validate_grain(ctx, param, value):
     try:
         return Grain(value)
     except ValueError:
         raise click.BadParameter(
-            f'Invalid grain value: {value}. Valid values are: {", ".join(g.value for g in Grain)}')
+            f'Invalid grain value: {value}. Valid values are: {", ".join(g.value for g in Grain)}'
+        ) from None
