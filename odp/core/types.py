@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 class QueryRow(BaseModel):
     QUERY_TEXT: str
-    DATABASE_NAME: str
-    SCHEMA_NAME: str
+    DATABASE_NAME: str | None
+    SCHEMA_NAME: str | None
 
 
 class SchemaRow(BaseModel):

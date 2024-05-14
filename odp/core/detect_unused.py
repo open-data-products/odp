@@ -65,13 +65,14 @@ def extract_columns(
     database_name: str,
     catalog_name: str,
     schema: dict,
+    dialect: str,
 ):
     # Extract the columns from a query that map to actual columns in a table
     # Based on https://github.com/tobymao/sqlglot/blob/main/posts/ast_primer.md
     try:
-        parsed = parse_one(query_text, dialect="snowflake")
+        parsed = parse_one(query_text, dialect=dialect)
         qualified = qualify(
-            parsed, schema=schema, dialect="snowflake"
+            parsed, schema=schema, dialect=dialect
         )  # Qualify (add schema) and expand * to explicit columns
         root = build_scope(qualified)
     except Exception as e:
@@ -116,14 +117,14 @@ def summarize_columns(columns):
     cols = [item for sublist in columns for item in sublist]
     return Counter(cols)
 
-
-def detect_unused_columns_generic(queries: list[QueryRow], info_schema: dict, info_schema_flat: list[tuple]):
+def detect_unused_columns_generic(queries: list[QueryRow], info_schema: dict, info_schema_flat: list[tuple], dialect: str):
     cols = [
         extract_columns(
             query.QUERY_TEXT,
-            database_name=query.DATABASE_NAME.upper(),
-            catalog_name=query.SCHEMA_NAME.upper(),
+            database_name=query.DATABASE_NAME.upper() if query.DATABASE_NAME else None,
+            catalog_name=query.SCHEMA_NAME.upper() if query.SCHEMA_NAME else None,
             schema=info_schema,
+            dialect=dialect,
         )
         for query in queries
     ]
@@ -142,12 +143,11 @@ def detect_unused_columns_generic(queries: list[QueryRow], info_schema: dict, in
     for col in unused_cols:
         print(col)
 
-
-def detect_unused_columns(query_file: str, info_schema_file: str):
+def detect_unused_columns(query_file: str, info_schema_file: str, dialect: str):
     queries = read_queries(query_file)
     print(f"Read {len(queries)} queries from {query_file}")
 
     info_schema, info_schema_flat = read_info_schema_from_file(info_schema_file)
     print(f"Read {len(info_schema_flat)} information schema rows from {info_schema_file}")
 
-    return detect_unused_columns_generic(queries, info_schema, info_schema_flat)
+    return detect_unused_columns_generic(queries, info_schema, info_schema_flat, dialect)
