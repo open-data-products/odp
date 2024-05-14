@@ -21,12 +21,35 @@ Dev Usage
 
     poetry install
 
-    python -m odp
+    poetry run python -m odp detect-unused --info_schema_file=examples/snowflake_info_schema.csv --queries_file=examples/snowflake_query.csv
 
-    # probablye some CLI version too
+or, run with snowflake env:
+
+    cat <<EOF > .env
+    ODP_SNOWFLAKE_ACCOUNT=your_account
+    ODP_SNOWFLAKE_USER=your_user
+    ODP_SNOWFLAKE_PASSWORD=your_password
+    ODP_SNOWFLAKE_DATABASE=your_database
+    ODP_SNOWFLAKE_WAREHOUSE=your_warehouse # optional
+    ODP_SNOWFLAKE_ROLE=your_role           # optional
+    EOF
+
+    poetry run python -m odp detect-unused 
+
+or, run with bigquery env:
+
+    cat <<EOF > .env
+    ODP_GOOGLE_APPLICATION_CREDENTIALS=your_credential_file
+    ODP_GOOGLE_PROJECT=your_project
+    EOF
+
+    poetry run python -m odp detect-unused --dialect=bigquery
 
 Maintainers
 -----------------
 
-Made with :heart: by [metalytics.dev](https://metalytics.dev) and [Twing Data](https://twingdata.com).
+Made with :heart: by 
+
+- [metalytics.dev](https://metalytics.dev) 
+- [Twing Data](https://twingdata.com).
 
