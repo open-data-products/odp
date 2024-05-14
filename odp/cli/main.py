@@ -1,9 +1,10 @@
 import click
 from dotenv import load_dotenv
 
+from odp.core.detect_unused import detect_unused_columns, build_info_schema, read_queries, \
+    read_info_schema_from_file
 from odp.core.snowflake import load_snowflake_credentials, get_snowflake_schema, get_snowflake_queries
-from odp.core.detect_unused import detect_unused_columns as detect_unused_columns_core, \
-    detect_unused_columns_generic, build_info_schema
+from odp.core.types import Dialect, validate_dialect, validate_grain, Grain
 
 load_dotenv()
 
@@ -21,14 +22,39 @@ Snowflake instance to generate the two files.""")
 @click.option('--info_schema_file',
               help='The file containing the information schema for the database.')
 @click.option('--dialect',
+              type=click.Choice([d.value for d in Dialect]),
+              callback=validate_dialect,
               default='snowflake',
               help='The type of warehouse to connect to. Currently only snowflake is supported.')
-def detect_unused_columns(queries_file: str | None, info_schema_file: str | None, dialect: str):
+@click.option('--grain',
+              type=click.Choice([g.value for g in Grain]),
+              callback=validate_grain,
+              default='column',
+              help='the grain to search for, e.g. use --grain=table to search for unused tables. Default is column.')
+def cli_detect_unused_columns(
+    queries_file: str | None,
+    info_schema_file: str | None,
+    dialect: Dialect,
+    grain: Grain,
+):
+
     if queries_file and info_schema_file:
-        detect_unused_columns_core(queries_file, info_schema_file, dialect)
+        queries = read_queries(queries_file)
+        print(f"Read {len(queries)} queries from {queries_file}")
+
+        info_schema, info_schema_flat = read_info_schema_from_file(info_schema_file)
+        print(f"Read {len(info_schema_flat)} information schema rows from {info_schema_file}")
+        if grain == Grain.column:
+            detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
+        elif grain == Grain.table:
+            raise NotImplementedError("Table grain is not yet supported")
+        elif grain == Grain.schema:
+            raise NotImplementedError("Schema grain is not yet supported")
+
         return
 
-    if dialect == 'snowflake':
+
+    if dialect == Dialect.snowflake:
         try:
             credentials = load_snowflake_credentials()
         except KeyError as e:
@@ -43,7 +69,16 @@ Missing or invalid parameters: {e}. Please provide either
         queries = get_snowflake_queries(credentials)
 
         info_schema, info_schema_flat = build_info_schema(schema)
-        detect_unused_columns_generic(queries, info_schema, info_schema_flat, dialect)
+        if grain == Grain.column:
+            detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
+        elif grain == Grain.table:
+            raise NotImplementedError("Table grain is not yet supported")
+        elif grain == Grain.schema:
+            raise NotImplementedError("Schema grain is not yet supported")
+    elif dialect == Dialect.bigquery:
+        raise NotImplementedError("Loading BigQuery data via credentials is not yet supported")
+    elif dialect == Dialect.redshift:
+        raise NotImplementedError("Loading Redshift data via credentials is not yet supported")
 
 
 @cli.command("show-queries")
