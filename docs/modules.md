@@ -1,1 +1,1 @@
-::: odp.foo
+::: odp.cli

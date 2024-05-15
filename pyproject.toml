@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "odp"
-version = "0.0.3"
+version = "0.0.6"
 description = "odp"
 authors = ["odp Authors <fdexter@metalytics.dev>"]
 repository = "https://github.com/open-data-products/odp"
@@ -19,7 +19,7 @@ python-dotenv = "^1.0.1"
 pydantic = "^2.7.1"
 
 [tool.poetry.scripts]
-odp = "odp.cli:main"
+odp = "odp.cli.main:cli"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
