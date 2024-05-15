@@ -1,8 +1,9 @@
 import click
 from dotenv import load_dotenv
 
-from odp.core.detect_unused import detect_unused_columns, build_info_schema, read_queries, \
-    read_info_schema_from_file
+from odp.core.detect_unused import detect_unused_columns, build_info_schema, \
+    read_queries, \
+    read_info_schema_from_file, detect_unused_tables
 from odp.core.snowflake import load_snowflake_credentials, get_snowflake_schema, get_snowflake_queries
 from odp.core.types import Dialect, validate_dialect, validate_grain, Grain
 
@@ -47,7 +48,7 @@ def cli_detect_unused_columns(
         if grain == Grain.column:
             detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
         elif grain == Grain.table:
-            raise NotImplementedError("Table grain is not yet supported")
+            detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
         elif grain == Grain.schema:
             raise NotImplementedError("Schema grain is not yet supported")
 
@@ -72,7 +73,7 @@ Missing or invalid parameters: {e}. Please provide either
         if grain == Grain.column:
             detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
         elif grain == Grain.table:
-            raise NotImplementedError("Table grain is not yet supported")
+            detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
         elif grain == Grain.schema:
             raise NotImplementedError("Schema grain is not yet supported")
     elif dialect == Dialect.bigquery:
