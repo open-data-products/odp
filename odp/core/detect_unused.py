@@ -1,5 +1,6 @@
 import csv
 from collections import Counter
+from datetime import datetime, timedelta, timezone
 
 from sqlglot import exp, parse_one
 from sqlglot.optimizer.qualify import qualify
@@ -8,12 +9,25 @@ from sqlglot.optimizer.scope import build_scope, find_all_in_scope
 from odp.core.types import Dialect, QueryRow, SchemaRow
 
 
-def read_queries(query_file) -> list[QueryRow]:
+def read_queries(
+    query_file: str,
+    since: int,
+) -> list[QueryRow]:
+    since_datetime = datetime.now(timezone.utc) - timedelta(days=since)
     # Read queries from a CSV file and return a list of dictionaries where each key is a column in the CSV
     with open(query_file) as f:
         csv_reader = csv.reader(f)
         header = list(map(str.upper, next(csv_reader)))
-        return [QueryRow(**dict(zip(header, row))) for row in csv_reader]
+
+        rows = []
+        for _row in csv_reader:
+            row = dict(zip(header,_row))
+            row["START_TIME"] = datetime.fromisoformat(row["START_TIME"])
+            query_row = QueryRow(**row)
+            if query_row.START_TIME > since_datetime:
+                rows.append(query_row)
+
+        return rows
 
 
 def read_info_schema_from_file(info_schema_file) -> tuple[dict, list[tuple]]:
