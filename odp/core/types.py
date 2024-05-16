@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 import click
@@ -6,6 +7,7 @@ from pydantic import BaseModel
 
 class QueryRow(BaseModel):
     QUERY_TEXT: str
+    START_TIME: datetime
     DATABASE_NAME: str | None
     SCHEMA_NAME: str | None
 
