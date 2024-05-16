@@ -1,11 +1,11 @@
 import csv
 from collections import Counter
 
-from sqlglot import parse_one, exp
+from sqlglot import exp, parse_one
 from sqlglot.optimizer.qualify import qualify
-from sqlglot.optimizer.scope import find_all_in_scope, build_scope
+from sqlglot.optimizer.scope import build_scope, find_all_in_scope
 
-from odp.core.types import SchemaRow, QueryRow, Dialect, Grain
+from odp.core.types import Dialect, QueryRow, SchemaRow
 
 
 def read_queries(query_file) -> list[QueryRow]:
@@ -75,7 +75,7 @@ def extract_columns(
             parsed, schema=schema, dialect=dialect.value
         )  # Qualify (add schema) and expand * to explicit columns
         root = build_scope(qualified)
-    except Exception as e:
+    except Exception:
         # todo - debug log these / write to file
         # print("Error parsing query", e, query_text)
         return []
@@ -101,13 +101,62 @@ def extract_columns(
         if type(table) != exp.Table:
             continue
 
-        columns.append((
-            table.catalog,
-            table.db,
-            table.name,
-            column.this.this,
-        ))
+        columns.append(
+            (
+                table.catalog,
+                table.db,
+                table.name,
+                column.this.this,
+            )
+        )
     return columns
+
+
+def extract_tables(
+    query_text: str,
+    database_name: str,
+    catalog_name: str,
+    schema: dict,
+    dialect: Dialect,
+):
+    # Extract the tables from a query that map to actual columns in a table
+    # Based on https://github.com/tobymao/sqlglot/blob/main/posts/ast_primer.md
+    try:
+        parsed = parse_one(query_text, dialect=dialect.value)
+        qualified = qualify(
+            parsed,
+            db=database_name,
+            catalog=catalog_name,
+            schema=schema,
+            dialect=dialect.value,
+            infer_schema=True,
+            expand_stars=False,  # we don't care about columns here
+            validate_qualify_columns=False, # we don't care about columns here
+            qualify_columns=False, # we don't care about columns here
+        )
+        root = build_scope(qualified)
+    except Exception as e:
+        # todo - debug log these / write to file
+        # print("Error parsing query", e, query_text)
+        return []
+
+    table_exps = set()
+    for scope in root.traverse():
+        for _, (_, source) in scope.selected_sources.items():
+            if isinstance(source, exp.Table):
+                table_exps.add(source)
+
+    # converting table expressions to a list of tuples
+    tables = []
+    for table_exp in table_exps:
+        tables.append(
+            (
+                table_exp.catalog,
+                table_exp.db,
+                str(table_exp.this.name),
+            )
+        )
+    return tables
 
 
 def summarize_columns(columns):
@@ -116,6 +165,7 @@ def summarize_columns(columns):
     # Flatten the col vals
     cols = [item for sublist in columns for item in sublist]
     return Counter(cols)
+
 
 def detect_unused_columns(
     queries: list[QueryRow],
@@ -148,3 +198,41 @@ def detect_unused_columns(
     for col in unused_cols:
         print(col)
 
+
+def detect_unused_tables(
+    queries: list[QueryRow],
+    info_schema: dict,
+    info_schema_flat: list[tuple],
+    dialect: Dialect,
+):
+    tables = [
+        extract_tables(
+            query.QUERY_TEXT,
+            database_name=query.DATABASE_NAME.upper() if query.DATABASE_NAME else None,
+            catalog_name=query.SCHEMA_NAME.upper() if query.SCHEMA_NAME else None,
+            schema=info_schema,
+            dialect=dialect,
+        )
+        for query in queries
+    ]
+
+    tbls = [item for sublist in tables for item in sublist]
+    table_counts = Counter(tbls)
+
+    # Print the most common tables in a human-readable format with one table per line
+    print("Most common tables (20):")
+    for tbl, count in table_counts.most_common(20):
+        catalog, db, table = (obj.upper() for obj in tbl)
+        print(f"{catalog}.{db}.{table}: {count}")
+
+    # Identify tables that are never used by comparing the tables in the info schema to the tables in the queries
+    info_schema_tables = set()
+    for table in info_schema_flat:
+        info_schema_tables.add((table[0].upper(), table[1].upper(), table[2].upper()))
+
+    used_tables = set(table_counts.keys())
+    unused_tables = sorted(info_schema_tables - used_tables)
+    print(f"Unused tables ({len(unused_tables)}):")
+    for table in sorted(unused_tables):
+        print(table)
+    return unused_tables
