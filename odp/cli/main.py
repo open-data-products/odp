@@ -1,7 +1,13 @@
 import click
 from dotenv import load_dotenv
 
-from odp.core.detect_unused import build_info_schema, detect_unused_columns, read_info_schema_from_file, read_queries
+from odp.core.detect_unused import (
+    build_info_schema,
+    detect_unused_columns,
+    detect_unused_tables,
+    read_info_schema_from_file,
+    read_queries,
+)
 from odp.core.snowflake import get_snowflake_queries, get_snowflake_schema, load_snowflake_credentials
 from odp.core.types import Dialect, Grain, validate_dialect, validate_grain
 
@@ -34,8 +40,8 @@ Snowflake instance to generate the two files.""",
     "--grain",
     type=click.Choice([g.value for g in Grain]),
     callback=validate_grain,
-    default="column",
-    help="the grain to search for, e.g. use --grain=table to search for unused tables. Default is column.",
+    default="table",
+    help="the grain to search for, e.g. use --grain=column to search for unused tables. Default is table.",
 )
 def cli_detect_unused_columns(
     queries_file: str | None,
@@ -52,7 +58,7 @@ def cli_detect_unused_columns(
         if grain == Grain.column:
             detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
         elif grain == Grain.table:
-            raise NotImplementedError("Table grain is not yet supported")
+            detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
         elif grain == Grain.schema:
             raise NotImplementedError("Schema grain is not yet supported")
 
@@ -78,7 +84,7 @@ Missing or invalid parameters: {e}. Please provide either
         if grain == Grain.column:
             detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
         elif grain == Grain.table:
-            raise NotImplementedError("Table grain is not yet supported")
+            detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
         elif grain == Grain.schema:
             raise NotImplementedError("Schema grain is not yet supported")
     elif dialect == Dialect.bigquery:
