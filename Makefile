@@ -8,7 +8,7 @@ install: ## Install the poetry environment and install the pre-commit hooks
 .PHONY: check
 check: ## Run code quality tools.
 	@echo "🚀 Checking Poetry lock file consistency with 'pyproject.toml': Running poetry lock --check"
-	@poetry lock --check
+	@poetry check --lock
 	@echo "🚀 Linting code: Running pre-commit"
 	@poetry run pre-commit run -a
 	@echo "🚀 Static type checking: Running mypy"
@@ -33,10 +33,12 @@ clean-build: ## clean build artifacts
 .PHONY: publish
 publish: ## publish a release to pypi.
 	@echo "🚀 Publishing: Dry run."
+	@poetry export -f requirements.txt --output requirements.txt
 	@poetry config pypi-token.pypi $(PYPI_TOKEN)
 	@poetry publish --dry-run
 	@echo "🚀 Publishing."
 	@poetry publish
+	@rm requirements.txt
 
 .PHONY: build-and-publish
 build-and-publish: build publish ## Build and publish.

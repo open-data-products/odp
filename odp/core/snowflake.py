@@ -1,10 +1,10 @@
 import os
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 import snowflake.connector
 from pydantic import BaseModel
 
-from odp.core.types import SchemaRow, QueryRow
+from odp.core.types import QueryRow, SchemaRow
 
 
 class SnowflakeCredentials(BaseModel):
@@ -29,10 +29,9 @@ def load_snowflake_credentials() -> SnowflakeCredentials:
         snowflake_role=os.environ.get("ODP_SNOWFLAKE_ROLE"),
     )
 
+
 def get_snowflake_queries(credentials: SnowflakeCredentials, since_days: int) -> list[QueryRow]:
-
     start_datetime = datetime.now() - timedelta(days=since_days)
-
 
     conn = snowflake.connector.connect(
         user=credentials.snowflake_user,
@@ -46,7 +45,6 @@ def get_snowflake_queries(credentials: SnowflakeCredentials, since_days: int) ->
     # Create a cursor object.
     cur = conn.cursor()
 
-
     # Execute a statement that will generate a result set.
     sql = """
 SELECT QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME
@@ -55,12 +53,15 @@ WHERE QUERY_TEXT ILIKE 'select%%'
     AND DATABASE_NAME = %(database_name)s
     AND START_TIME > %(start_datetime)s
 ORDER BY START_TIME DESC
-LIMIT 10000; 
+LIMIT 10000;
         """
-    cur.execute(sql, {
-        "database_name": credentials.snowflake_database,
-        "start_datetime": start_datetime,
-    })
+    cur.execute(
+        sql,
+        {
+            "database_name": credentials.snowflake_database,
+            "start_datetime": start_datetime,
+        },
+    )
 
     return [
         QueryRow(
@@ -68,7 +69,8 @@ LIMIT 10000;
             DATABASE_NAME=row[1],
             SCHEMA_NAME=row[2],
             START_TIME=row[3],
-        ) for row in cur.fetchall()
+        )
+        for row in cur.fetchall()
     ]
 
 
@@ -103,5 +105,6 @@ WHERE TABLE_SCHEMA != 'INFORMATION_SCHEMA';
             TABLE_SCHEMA=row[1],
             TABLE_NAME=row[2],
             COLUMN_NAME=row[3],
-        ) for row in cur.fetchall()
+        )
+        for row in cur.fetchall()
     ]
