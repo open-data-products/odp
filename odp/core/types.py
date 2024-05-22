@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 import click
 from pydantic import BaseModel
@@ -25,7 +26,7 @@ class Dialect(Enum):
     redshift = "redshift"
 
 
-def validate_dialect(ctx, param, value):
+def validate_dialect(ctx: Any, param: Any, value: str) -> Dialect:
     try:
         return Dialect(value)
     except ValueError:
@@ -40,7 +41,7 @@ class Grain(Enum):
     column = "column"
 
 
-def validate_grain(ctx, param, value):
+def validate_grain(ctx: Any, param: Any, value: str) -> Grain:
     try:
         return Grain(value)
     except ValueError:

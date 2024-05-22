@@ -1,6 +1,7 @@
 import csv
 from collections import Counter
 from datetime import datetime, timedelta, timezone
+from typing import Any
 
 from sqlglot import exp, parse_one
 from sqlglot.optimizer.qualify import qualify
@@ -21,16 +22,16 @@ def read_queries(
 
         rows = []
         for _row in csv_reader:
-            row = dict(zip(header, _row))
+            row: dict[str, Any] = dict(zip(header, _row))
             row["START_TIME"] = datetime.fromisoformat(row["START_TIME"])
             query_row = QueryRow(**row)
-            if query_row.START_TIME > since_datetime:
+            if since_datetime < query_row.START_TIME:
                 rows.append(query_row)
 
         return rows
 
 
-def read_info_schema_from_file(schema_file) -> tuple[dict, list[tuple]]:
+def read_info_schema_from_file(schema_file: str) -> tuple[dict, list[tuple]]:
     # Read the info schema from a CSV file and return it as both a nested dictionary and a flat list
     # Format is: catalog -> schema -> table name -> column name
     schema_rows: list[SchemaRow] = []
@@ -52,7 +53,7 @@ def read_info_schema_from_file(schema_file) -> tuple[dict, list[tuple]]:
 
 
 def build_info_schema(schema_rows: list[SchemaRow]) -> tuple[dict, list[tuple]]:
-    sqlglot_mapping_schema = {}
+    sqlglot_mapping_schema: dict = {}
     flat_schema: list[tuple] = []
     for row in schema_rows:
         catalog, schema_name, table_name, column_name = (
@@ -76,11 +77,11 @@ def build_info_schema(schema_rows: list[SchemaRow]) -> tuple[dict, list[tuple]]:
 
 def extract_columns(
     query_text: str,
-    database_name: str,
-    catalog_name: str,
+    database_name: str | None,
+    catalog_name: str | None,
     schema: dict,
     dialect: Dialect,
-):
+) -> list[tuple]:
     # Extract the columns from a query that map to actual columns in a table
     # Based on https://github.com/tobymao/sqlglot/blob/main/posts/ast_primer.md
     try:
@@ -92,6 +93,8 @@ def extract_columns(
     except Exception:
         # todo - debug log these / write to file
         # print("Error parsing query", e, query_text)
+        return []
+    if root is None:
         return []
 
     # This is confusing due to naming conventions. We basically want to make sure every table is fully qualified
@@ -115,22 +118,24 @@ def extract_columns(
         if type(table) != exp.Table:
             continue
 
-        columns.append((
-            table.catalog,
-            table.db,
-            table.name,
-            column.this.this,
-        ))
+        columns.append(
+            (
+                table.catalog,
+                table.db,
+                table.name,
+                column.this.this,
+            )
+        )
     return columns
 
 
 def extract_tables(
     query_text: str,
-    database_name: str,
-    catalog_name: str,
+    database_name: str | None,
+    catalog_name: str | None,
     schema: dict,
     dialect: Dialect,
-):
+) -> list[tuple]:
     # Extract the tables from a query that map to actual columns in a table
     # Based on https://github.com/tobymao/sqlglot/blob/main/posts/ast_primer.md
     try:
@@ -147,9 +152,12 @@ def extract_tables(
             qualify_columns=False,  # we don't care about columns here
         )
         root = build_scope(qualified)
-    except Exception as e:
+    except Exception:
         # todo - debug log these / write to file
         # print("Error parsing query", e, query_text)
+        return []
+
+    if root is None:
         return []
 
     table_exps = set()
@@ -161,15 +169,17 @@ def extract_tables(
     # converting table expressions to a list of tuples
     tables = []
     for table_exp in table_exps:
-        tables.append((
-            table_exp.catalog,
-            table_exp.db,
-            str(table_exp.this.name),
-        ))
+        tables.append(
+            (
+                table_exp.catalog,
+                table_exp.db,
+                str(table_exp.this.name),
+            )
+        )
     return tables
 
 
-def summarize_columns(columns):
+def summarize_columns(columns: list[list[tuple]]) -> Counter:
     # Return a dictionary of column to counts
 
     # Flatten the col vals
@@ -182,7 +192,7 @@ def detect_unused_columns(
     info_schema: dict,
     info_schema_flat: list[tuple],
     dialect: Dialect,
-):
+) -> None:
     cols = [
         extract_columns(
             query.QUERY_TEXT,
@@ -218,7 +228,7 @@ def detect_unused_tables(
     info_schema: dict,
     info_schema_flat: list[tuple],
     dialect: Dialect,
-):
+) -> list[tuple]:
     tables = [
         extract_tables(
             query.QUERY_TEXT,

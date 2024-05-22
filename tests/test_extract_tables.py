@@ -42,8 +42,7 @@ def test_extract_tables_with_multiple_tables_in_query():
 
     result = extract_tables(query_text, database_name, catalog_name, schema, dialect)
 
-    assert set(result) == set([("test_catalog", "TEST_DB", "TEST_TABLE1"),
-                               ("test_catalog", "TEST_DB", "TEST_TABLE2")])
+    assert set(result) == set(("test_catalog", "TEST_DB", "TEST_TABLE1"), ("test_catalog", "TEST_DB", "TEST_TABLE2"))
 
 
 def test_extract_tables_with_invalid_query():

@@ -17,7 +17,7 @@ load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"))
 
 
 @click.group(name="odp")
-def cli():
+def cli() -> None:
     pass
 
 
@@ -57,7 +57,7 @@ def cli_detect_unused_columns(
     dialect: Dialect,
     grain: Grain,
     since_days: int,
-):
+) -> None:
     if queries_file and schema_file:
         queries = read_queries(queries_file, since_days)
         print(f"Read {len(queries)} queries from {queries_file}")
@@ -103,9 +103,8 @@ Missing or invalid parameters: {e}. Please provide either
 
 
 @cli.command("show-queries")
-def show_snowflake_queries():
-    print(
-        "Run the below against your snowflake instance to generate a dataset you can" "export to CSV for analysis")
+def show_snowflake_queries() -> None:
+    print("Run the below against your snowflake instance to generate a dataset you can" "export to CSV for analysis")
     print(
         """
 -- query_file
