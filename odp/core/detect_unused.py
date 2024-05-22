@@ -30,11 +30,11 @@ def read_queries(
         return rows
 
 
-def read_info_schema_from_file(info_schema_file) -> tuple[dict, list[tuple]]:
+def read_info_schema_from_file(schema_file) -> tuple[dict, list[tuple]]:
     # Read the info schema from a CSV file and return it as both a nested dictionary and a flat list
     # Format is: catalog -> schema -> table name -> column name
     schema_rows: list[SchemaRow] = []
-    with open(info_schema_file) as f:
+    with open(schema_file) as f:
         csv_reader = csv.reader(f)
         next(csv_reader)  # Skip header
         for row in csv_reader:
