@@ -1,0 +1,47 @@
+query_text,database_name,schema_name,start_time
+"SELECT b.name AS brand_name, COUNT(DISTINCT srt.ymd) AS active_days FROM public.agg_hourly srt JOIN public.brand b ON srt.brand_id = b.id GROUP BY b.name",catalog,public,2024-05-07 15:04:53.527000 +00:00
+"SELECT ymd, sum(spend) FROM (SELECT * FROM public.agg_hourly WHERE ymd >= current_date - interval '7 days' AND hour = 9) a group by 1;",catalog,public,2024-05-07 15:04:53.529000 +00:00
+"SELECT ymd, SUM(impressions) AS total_impressions, SUM(clicks) AS total_clicks FROM public.agg_daily GROUP BY ymd;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT r.name AS region_name, SUM(b.impressions) AS total_impressions, SUM(b.spend) AS total_spend FROM public.agg_monthly b JOIN public.region r ON b.region_id = r.id GROUP BY r.name;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT ymd, SUM(spend), SUM(views) FROM public.agg_monthly GROUP BY ymd HAVING SUM(spend) > 1000;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT b.ymd, br.name AS brand_name, SUM(b.spend) AS total_spend FROM public.agg_daily b JOIN public.brand br ON b.brand_id = br.id GROUP BY b.ymd, br.name ORDER BY b.ymd, br.name;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT os.name, SUM(b.spend) AS total_spend FROM public.agg_daily b JOIN public.operating_system os ON b.os_id = os.id GROUP BY os.name;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT ymd, region_id, SUM(spend) AS total_spend, SUM(cost) AS total_cost FROM agg_monthly GROUP BY ymd, region_id;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT r.name, SUM(b.views) AS total_views FROM public.agg_daily b JOIN public.region r ON b.region_id = r.id GROUP BY r.name;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT brand_id, SUM(clicks) / SUM(impressions) AS click_through_rate FROM public.agg_hourly GROUP BY brand_id;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT ymd, COUNT(DISTINCT brand_id) AS unique_brands FROM public.agg_daily GROUP BY ymd;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT b.ymd, c.name, SUM(b.clicks) AS total_clicks FROM public.agg_monthly b JOIN public.city c ON b.city_id = c.id GROUP BY b.ymd, c.name;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT srt.ymd, r.name, SUM(srt.impressions) FROM public.agg_daily srt JOIN public.region r ON srt.region_id = r.id GROUP BY srt.ymd, r.name;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT ymd, SUM(impressions) AS total_impressions FROM public.agg_monthly GROUP BY ymd;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT ymd, publisher_id, brand_id, sum(spend) FROM public.agg_for_finance WHERE ymd = '2024-05-01' group by 1, 2, 3;",catalog,public,2024-05-01 15:04:53.529000 +00:00
+"SELECT b.ymd, MAX(b.views) AS max_views FROM public.agg_monthly b GROUP BY b.ymd ORDER BY max_views DESC;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT ymd, SUM(spend) AS daily_spend FROM public.agg_monthly GROUP BY ymd ORDER BY ymd;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT brw.name, AVG(b.clicks) AS avg_clicks FROM public.agg_hourly b JOIN public.browser brw ON b.browser_id = brw.id GROUP BY brw.name;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT br.name, SUM(b.impressions) AS total_impressions FROM public.agg_daily b JOIN public.browser br ON b.browser_id = br.id GROUP BY br.name;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT b.name, AVG(srt.clicks) AS avg_clicks FROM public.agg_hourly srt JOIN public.brand b ON srt.brand_id = b.id GROUP BY b.name;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT ymd, SUM(spend) AS total_spend FROM public.agg_monthly GROUP BY ymd ORDER BY ymd DESC;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT region_id, SUM(views) AS total_views, SUM(conversions) AS total_conversions FROM public.agg_hourly GROUP BY region_id;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT creative_id, AVG(cost) AS avg_cost, AVG(price) AS avg_price FROM ad_win GROUP BY creative_id;",catalog,public,2024-05-07 15:04:53.523000 +00:00
+"SELECT region_id, AVG(clicks) AS avg_clicks FROM public.agg_hourly GROUP BY region_id;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT postal_code, COUNT(ad_request_id) AS request_count FROM ad_request WHERE region_id = '4' GROUP BY postal_code;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT os.name, COUNT(b.conversions) AS conversion_count FROM public.agg_daily b JOIN public.operating_system os ON b.os_id = os.id WHERE b.conversions > 0 GROUP BY os.name;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT srt.ymd, b.name AS brand_name, SUM(srt.spend) AS total_spend FROM public.agg_monthly srt JOIN public.brand b ON srt.brand_id = b.id GROUP BY srt.ymd, b.name;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT date(a.datetime), c.brand_id, SUM(a.price) AS daily_spend FROM ad_win a JOIN creative c ON a.creative_id = c.id GROUP BY date(a.datetime), c.brand_id;",catalog,public,2024-05-07 15:04:53.523000 +00:00
+"SELECT brand_id, COUNT(*) AS count_conversions FROM public.agg_daily WHERE conversions > 0 GROUP BY brand_id;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT region_id, AVG(spend) AS avg_spend, AVG(views) AS avg_views FROM public.agg_daily GROUP BY region_id;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT c.name AS city_name, SUM(b.conversions) AS total_conversions FROM public.agg_hourly b JOIN public.city c ON b.city_id = c.id GROUP BY c.name ORDER BY total_conversions DESC LIMIT 5;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT c.name, os.name, COUNT(*) AS count FROM public.agg_daily b JOIN public.city c ON b.city_id = c.id JOIN public.operating_system os ON b.os_id = os.id GROUP BY c.name, os.name;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT b.ymd, COUNT(b.conversions) AS conversion_count FROM public.agg_hourly b GROUP BY b.ymd;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT country_id, COUNT(ad_request_id) AS total_requests FROM ad_request GROUP BY country_id;",catalog,public,2024-05-07 15:04:53.523000 +00:00
+SELECT * FROM public.agg_hourly WHERE ymd = '2024-05-07' AND hour = 9;,catalog,public,2024-05-07 15:04:53.528000 +00:00
+"SELECT hour, SUM(impressions) AS total_impressions, SUM(clicks) AS total_clicks FROM agg_hourly WHERE ymd = '2024-05-07' GROUP BY hour;",catalog,public,2024-05-07 15:04:53.523000 +00:00
+"SELECT b.ymd, br.name, AVG(b.clicks) AS avg_clicks FROM public.agg_daily b JOIN public.brand br ON b.brand_id = br.id GROUP BY b.ymd, br.name;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT ymd, COUNT(DISTINCT brand_id) AS unique_brands FROM public.agg_hourly GROUP BY ymd;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT city.id, city.name, sum(ad_combined.view) AS total_views FROM ad_combined JOIN city on ad_combined.city_id = city.id GROUP BY city.id, city.name ORDER BY total_views DESC LIMIT 5;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT c.name AS city_name, SUM(b.spend) AS total_spend FROM public.agg_daily b JOIN public.city c ON b.city_id = c.id GROUP BY c.name;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT b.ymd, SUM(b.conversions) AS total_conversions, AVG(b.spend) AS avg_spend FROM public.agg_monthly b GROUP BY b.ymd;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT br.name AS brand_name, SUM(b.views) AS total_views, SUM(b.conversions) AS total_conversions FROM public.agg_daily b JOIN public.brand br ON b.brand_id = br.id GROUP BY br.name;",catalog,public,2024-05-07 15:04:53.524000 +00:00
+"SELECT br.name, c.name, AVG(b.impressions) AS avg_impressions FROM public.agg_daily b JOIN public.brand br ON b.brand_id = br.id JOIN public.city c ON b.city_id = c.id GROUP BY br.name, c.name;",catalog,public,2024-05-07 15:04:53.525000 +00:00
+"SELECT ymd, COUNT(DISTINCT brand_id) AS unique_brands FROM public.agg_monthly GROUP BY ymd;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT ymd, brand_id, MAX(impressions) AS max_impressions FROM public.agg_daily GROUP BY ymd, brand_id;",catalog,public,2024-05-07 15:04:53.526000 +00:00
+"SELECT r.name AS region_name, AVG(srt.spend) AS avg_spend FROM public.agg_daily srt JOIN public.region r ON srt.region_id = r.id GROUP BY r.name;",catalog,public,2024-05-07 15:04:53.526000 +00:00

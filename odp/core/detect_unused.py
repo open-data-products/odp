@@ -21,7 +21,7 @@ def read_queries(
 
         rows = []
         for _row in csv_reader:
-            row = dict(zip(header,_row))
+            row = dict(zip(header, _row))
             row["START_TIME"] = datetime.fromisoformat(row["START_TIME"])
             query_row = QueryRow(**row)
             if query_row.START_TIME > since_datetime:
@@ -115,14 +115,12 @@ def extract_columns(
         if type(table) != exp.Table:
             continue
 
-        columns.append(
-            (
-                table.catalog,
-                table.db,
-                table.name,
-                column.this.this,
-            )
-        )
+        columns.append((
+            table.catalog,
+            table.db,
+            table.name,
+            column.this.this,
+        ))
     return columns
 
 
@@ -145,8 +143,8 @@ def extract_tables(
             dialect=dialect.value,
             infer_schema=True,
             expand_stars=False,  # we don't care about columns here
-            validate_qualify_columns=False, # we don't care about columns here
-            qualify_columns=False, # we don't care about columns here
+            validate_qualify_columns=False,  # we don't care about columns here
+            qualify_columns=False,  # we don't care about columns here
         )
         root = build_scope(qualified)
     except Exception as e:
@@ -163,13 +161,11 @@ def extract_tables(
     # converting table expressions to a list of tuples
     tables = []
     for table_exp in table_exps:
-        tables.append(
-            (
-                table_exp.catalog,
-                table_exp.db,
-                str(table_exp.this.name),
-            )
-        )
+        tables.append((
+            table_exp.catalog,
+            table_exp.db,
+            str(table_exp.this.name),
+        ))
     return tables
 
 
@@ -200,9 +196,13 @@ def detect_unused_columns(
     col_counts = summarize_columns(cols)
 
     # Print the most common columns in a human readable format with one column per line
-    print("Most common columns (20):")
-    for col, count in col_counts.most_common(20):
-        print(f"{col}: {count}")
+    if len(col_counts) > 0:
+        max_len = 20 if len(col_counts) > 20 else len(col_counts)
+        print(f"Most common columns (up to {max_len}):")
+        for col, count in col_counts.most_common(max_len):
+            print(f"{col}: {count}")
+    else:
+        print("No most common columns found in provided date range")
 
     # Identify columns that are never used by comparing the columns in the info schema to the columns in the queries
     info_schema_cols = set(info_schema_flat)
@@ -234,10 +234,14 @@ def detect_unused_tables(
     table_counts = Counter(tbls)
 
     # Print the most common tables in a human-readable format with one table per line
-    print("Most common tables (20):")
-    for tbl, count in table_counts.most_common(20):
-        catalog, db, table = (obj.upper() for obj in tbl)
-        print(f"{catalog}.{db}.{table}: {count}")
+    if len(table_counts) > 0:
+        max_len = 20 if len(table_counts) > 20 else len(table_counts)
+        print(f"Most common tables (up to {max_len}):")
+        for tbl, count in table_counts.most_common(max_len):
+            catalog, db, table = (obj.upper() for obj in tbl)
+            print(f"{catalog}.{db}.{table}: {count}")
+    else:
+        print("No most common tables found in provided date range")
 
     # Identify tables that are never used by comparing the tables in the info schema to the tables in the queries
     info_schema_tables = set()

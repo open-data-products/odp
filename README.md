@@ -19,13 +19,13 @@ Currently supports Snowflake and BigQuery, support for Redshift and other wareho
 
     poetry install
 
-    poetry run python -m odp detect-unused --info_schema_file=examples/snowflake_info_schema.csv --queries_file=examples/snowflake_query.csv
+    poetry run python -m odp detect-unused --info-schema-file=examples/snowflake/info-schema.csv --queries-file=examples/snowflake/query-history.csv
 
 or, run with snowflake env:
 
     cat <<EOF > .env
     ODP_SNOWFLAKE_ACCOUNT=your_account
-    ODP_SNOWFLAKE_USER=your_user
+    ODP_SNOWFLAKE_USERNAME=your_user
     ODP_SNOWFLAKE_PASSWORD=your_password
     ODP_SNOWFLAKE_DATABASE=your_database
     ODP_SNOWFLAKE_WAREHOUSE=your_warehouse # optional
