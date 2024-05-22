@@ -2,7 +2,6 @@
 
 Open Data Products (ODP) is a toolkit that helps data practitioners and data leaders better understand the value of their data. It can help teams understand what data is in use and who to talk to in order to understand which data is driving business value and why. For example, the detect-unused command can help find tables or columns that are unused within a certain time range (e.g. 60 days).
 
-
 ```
 $ odp detect-unused --dialect=snowflake --grain=table --since-days=60
 
@@ -18,11 +17,12 @@ Unused tables (27):
 ('CATALOG', 'PUBLIC', 'AD_CONVERSION')
 ```
 
-
 ### What problem does odp solve? What outcomes does it drive?
+
 Data teams produce a lot of assets and data sets, but it’s hard to understand who’s using them and how. It’s not clear which of them are valuable, which are useless, and what business value they drive, if any
 
 This can lead to
+
 1. Wasted spend on data services, data warehousing, and data headcount
 1. Data projects that don’t have positive ROI
 1. Overcomplicated workflows that are difficult to build, test, QA, and maintain
@@ -44,7 +44,7 @@ Correct application of ODP will enable
 1. Data Quality / Observability tools - similar implementation, different form factor and use case - ODP focuses on helping teams build the right thing, quality tools focus on helping teams build things right
 1. Modeling and Semantic Layer - Building data is not the same as understanding how it’s used
 1. Usage analytics in BI tools - isolated to BI tool usage, large orgs tend to have many SQL interfaces including multiple BI tools, notebook platforms, and other SQL clients. ODP works on plain SQL precisely so that it can support all these tools.
- 
+
 #### Who is it for
 
 Data practitioners who want to understand the usage of their data warehouse in order to drive more value from their data assets and processes. This includes
@@ -53,8 +53,9 @@ Data practitioners who want to understand the usage of their data warehouse in o
 1. Analytics engineers
 1. Data product managers
 1. Anyone who cares about data
- 
+
 #### Anti-Features
+
 There are some things that we will never do
 
 1. ODP does not look at the value of specific row- or column-level data, it’s not designed to summarize the content or quality of a dataset
@@ -79,7 +80,6 @@ You can run odp as a docker container, pip CLI tool, or python library.
 
 The most basic invocation of the unused analysis would be to use the docker container or pip package
 
-
 ```
 pip install odp
 odp detect-unused --dialect=snowflake --grain=table --since-days=60
@@ -93,7 +93,6 @@ docker run --rm -it \
 ```
 
 You can also import the library into your project
-
 
 ```python
 from odp.core.detect_unused import detect_unused_tables
@@ -136,11 +135,10 @@ There are two ways to get data into ODP
 
 1. You can give ODP connection details to your data warehouse and the queries/schema will be fetched automatically
 1. You can collect query/schema information into a properly-formatted CSV file
- 
+
 ##### Using Database Credentials
 
 The easiest way to get started is to give ODP access to your Snowflake, BigQuery, or Redshift instance via environment variables:
-
 
 ```shell
 cat <<EOF > .env
@@ -156,7 +154,8 @@ odp detect-unused --dialect=snowflake
 ```
 
 ##### Using Files
-You can also generate the input query and schema lists yourself and pass them into 
+
+You can also generate the input query and schema lists yourself and pass them into
 odp detect-unused --queries-file=./queries.csv --schema-file=./schema.csv
 
 These files look something like
@@ -168,14 +167,12 @@ TABLE_CATALOG,TABLE_SCHEMA,TABLE_NAME,TABLE_COLUMN
 
 And
 
-
 ```
 # queries.csv
 QUERY_TEXT,DATABASE_NAME,SCHEMA_NAME,START_TIME
 ```
 
 For example, to get these from Snowflake, you can run the following two queries:
-
 
 ```sql
 SELECT QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME
@@ -184,8 +181,6 @@ WHERE QUERY_TEXT ILIKE 'select%'
 ORDER BY START_TIME DESC
 LIMIT 10000; -- or start_time > $SOME_DATE to get columns unused in the last N days
 ```
-
-
 
 ```sql
 SELECT
@@ -196,5 +191,3 @@ COLUMN_NAME
 FROM information_schema.columns
 WHERE TABLE_SCHEMA != 'INFORMATION_SCHEMA';
 ```
-
-
