@@ -10,9 +10,16 @@
 
 Open Data Products (ODP) is a toolkit that helps data practitioners and data leaders better understand the value of their data. It can help teams understand what data is in use and who to talk to in order to understand which data is driving business value and why. For example, the detect-unused command can help find tables or columns that are unused within a certain time range (e.g. 60 days).
 
-```
-$ odp detect-unused --dialect=snowflake --grain=table --since-days=60
 
+```
+pip install odp
+```
+
+```
+odp detect-unused --dialect=snowflake --grain=table --since-days=60
+```
+
+```
 Read 63 queries from SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
 Read 116 information schema rows from ANALYTICS_PROD.INFORMATION_SCHEMA.COLUMNS
 Most common tables (20):
@@ -23,10 +30,11 @@ Unused tables (27):
 ('CATALOG', 'PUBLIC', 'AD_CLICK')
 ('CATALOG', 'PUBLIC', 'AD_COMBINED')
 ('CATALOG', 'PUBLIC', 'AD_CONVERSION')
+...
 ```
 
 - **Github repository**: <https://github.com/open-data-products/odp/>
-- **Announcement Post**: <https://github.com/open-data-products/blob/main/docs/announcement.md>
+- **Announcement Post**: <https://github.com/open-data-products/odp/blob/main/docs/announcement.md>
 
 ## Dev Usage
 
