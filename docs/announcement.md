@@ -96,6 +96,7 @@ You can also import the library into your project
 
 ```python
 from odp.core.detect_unused import detect_unused_tables
+from odp.core.snowflake import SnowflakeCredentials, get_snowflake_schema, get_snowflake_queries
 from odp.core.types import Dialect, QueryRow
 import snowflake.connector
 
