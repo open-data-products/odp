@@ -10,6 +10,7 @@
 
 Open Data Products (ODP) is a toolkit that helps data practitioners and data leaders better understand the value of their data. It can help teams understand what data is in use and who to talk to in order to understand which data is driving business value and why. For example, the detect-unused command can help find tables or columns that are unused within a certain time range (e.g. 60 days).
 
+- **Announcement Post**: <https://github.com/open-data-products/odp/blob/main/docs/announcement.md>
 
 ```
 pip install odp
@@ -34,7 +35,6 @@ Unused tables (27):
 ```
 
 - **Github repository**: <https://github.com/open-data-products/odp/>
-- **Announcement Post**: <https://github.com/open-data-products/odp/blob/main/docs/announcement.md>
 
 ## Dev Usage
 
