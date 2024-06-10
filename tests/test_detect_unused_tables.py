@@ -4,7 +4,12 @@ from odp.core.types import Dialect, QueryRow
 
 def test_unused_tables_detection_with_valid_input():
     queries = [
-        QueryRow(QUERY_TEXT="SELECT * FROM test_db.test_table", DATABASE_NAME="test_db", SCHEMA_NAME="test_catalog")
+        QueryRow(
+            QUERY_TEXT="SELECT * FROM test_db.test_table",
+            DATABASE_NAME="test_db",
+            SCHEMA_NAME="test_catalog",
+            START_TIME="2024-01-01 00:00:00",
+        )
     ]
     info_schema = {
         "test_catalog": {
@@ -45,6 +50,7 @@ def test_unused_tables_detection_with_multiple_tables_in_query():
             QUERY_TEXT="SELECT * FROM test_db.test_table1 JOIN test_db.test_table2 ON test_table1.id = test_table2.id",
             DATABASE_NAME="test_db",
             SCHEMA_NAME="test_catalog",
+            START_TIME="2024-01-01 00:00:00",
         )
     ]
     info_schema = {
