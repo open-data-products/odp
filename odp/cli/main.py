@@ -92,8 +92,8 @@ Missing or invalid parameters: {e}. Please provide either
             ) from e
 
         conn = get_snowflake_connection(credentials)
-        schema = get_snowflake_schema(credentials, conn)
-        queries = get_snowflake_queries(credentials, since_days, conn)
+        schema = get_snowflake_schema(conn)
+        queries = get_snowflake_queries(conn, since_days)
 
         info_schema, info_schema_flat = build_info_schema(schema)
         if grain == Grain.column:

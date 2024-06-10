@@ -42,13 +42,8 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
     )
 
 
-def get_snowflake_queries(
-    credentials: SnowflakeCredentials, since_days: int, conn: SnowflakeConnection | None = None
-) -> list[QueryRow]:
+def get_snowflake_queries(conn: SnowflakeConnection, since_days: int) -> list[QueryRow]:
     start_datetime = datetime.now() - timedelta(days=since_days)
-
-    if conn is None:
-        conn = get_snowflake_connection(credentials)
 
     # Create a cursor object.
     cur = conn.cursor()
@@ -66,7 +61,7 @@ LIMIT 10000;
     cur.execute(
         sql,
         {
-            "database_name": credentials.snowflake_database,
+            "database_name": conn.database,
             "start_datetime": start_datetime,
         },
     )
@@ -82,10 +77,7 @@ LIMIT 10000;
     ]
 
 
-def get_snowflake_schema(credentials: SnowflakeCredentials, conn: SnowflakeConnection | None = None) -> list[SchemaRow]:
-    if conn is None:
-        conn = get_snowflake_connection(credentials)
-
+def get_snowflake_schema(conn: SnowflakeConnection) -> list[SchemaRow]:
     # Create a cursor object.
     cur = conn.cursor()
 
@@ -96,7 +88,7 @@ TABLE_CATALOG,
 TABLE_SCHEMA,
 TABLE_NAME,
 COLUMN_NAME
-FROM {credentials.snowflake_database}.information_schema.columns
+FROM {conn.database}.information_schema.columns
 WHERE TABLE_SCHEMA != 'INFORMATION_SCHEMA';
     """
     cur.execute(sql)
