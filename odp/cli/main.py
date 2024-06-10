@@ -10,8 +10,12 @@ from odp.core.detect_unused import (
     read_info_schema_from_file,
     read_queries,
 )
-from odp.core.snowflake import get_snowflake_queries, get_snowflake_schema, \
-    load_snowflake_credentials, get_snowflake_connection
+from odp.core.snowflake import (
+    get_snowflake_connection,
+    get_snowflake_queries,
+    get_snowflake_schema,
+    load_snowflake_credentials,
+)
 from odp.core.types import Dialect, Grain, validate_dialect, validate_grain
 
 load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"))

@@ -42,9 +42,9 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
     )
 
 
-def get_snowflake_queries(credentials: SnowflakeCredentials, since_days: int,
-                          conn: SnowflakeConnection | None = None) -> list[
-    QueryRow]:
+def get_snowflake_queries(
+    credentials: SnowflakeCredentials, since_days: int, conn: SnowflakeConnection | None = None
+) -> list[QueryRow]:
     start_datetime = datetime.now() - timedelta(days=since_days)
 
     if conn is None:
@@ -82,8 +82,7 @@ LIMIT 10000;
     ]
 
 
-def get_snowflake_schema(credentials: SnowflakeCredentials,
-                         conn: SnowflakeConnection | None = None) -> list[SchemaRow]:
+def get_snowflake_schema(credentials: SnowflakeCredentials, conn: SnowflakeConnection | None = None) -> list[SchemaRow]:
     if conn is None:
         conn = get_snowflake_connection(credentials)
 
