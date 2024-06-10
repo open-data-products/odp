@@ -144,7 +144,7 @@ The easiest way to get started is to give ODP access to your Snowflake, BigQuery
 ```shell
 cat <<EOF > .env
 ODP_SNOWFLAKE_ACCOUNT=your_account
-ODP_SNOWFLAKE_USER=your_user
+ODP_SNOWFLAKE_USERNAME=your_user
 ODP_SNOWFLAKE_PASSWORD=your_password
 ODP_SNOWFLAKE_DATABASE=your_database
 ODP_SNOWFLAKE_WAREHOUSE=your_warehouse # optional

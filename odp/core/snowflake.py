@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import snowflake.connector
 from pydantic import BaseModel
+from snowflake.connector import SnowflakeConnection
 
 from odp.core.types import QueryRow, SchemaRow
 
@@ -30,10 +31,8 @@ def load_snowflake_credentials() -> SnowflakeCredentials:
     )
 
 
-def get_snowflake_queries(credentials: SnowflakeCredentials, since_days: int) -> list[QueryRow]:
-    start_datetime = datetime.now() - timedelta(days=since_days)
-
-    conn = snowflake.connector.connect(
+def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConnection:
+    return snowflake.connector.connect(
         user=credentials.snowflake_user,
         password=credentials.snowflake_password,
         account=credentials.snowflake_account,
@@ -41,6 +40,15 @@ def get_snowflake_queries(credentials: SnowflakeCredentials, since_days: int) ->
         role=credentials.snowflake_role,
         warehouse=credentials.snowflake_warehouse,
     )
+
+
+def get_snowflake_queries(credentials: SnowflakeCredentials, since_days: int,
+                          conn: SnowflakeConnection | None = None) -> list[
+    QueryRow]:
+    start_datetime = datetime.now() - timedelta(days=since_days)
+
+    if conn is None:
+        conn = get_snowflake_connection(credentials)
 
     # Create a cursor object.
     cur = conn.cursor()
@@ -74,15 +82,10 @@ LIMIT 10000;
     ]
 
 
-def get_snowflake_schema(credentials: SnowflakeCredentials) -> list[SchemaRow]:
-    conn = snowflake.connector.connect(
-        user=credentials.snowflake_user,
-        password=credentials.snowflake_password,
-        account=credentials.snowflake_account,
-        warehouse=credentials.snowflake_warehouse,
-        database=credentials.snowflake_database,
-        role=credentials.snowflake_role,
-    )
+def get_snowflake_schema(credentials: SnowflakeCredentials,
+                         conn: SnowflakeConnection | None = None) -> list[SchemaRow]:
+    if conn is None:
+        conn = get_snowflake_connection(credentials)
 
     # Create a cursor object.
     cur = conn.cursor()

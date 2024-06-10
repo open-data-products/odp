@@ -10,7 +10,8 @@ from odp.core.detect_unused import (
     read_info_schema_from_file,
     read_queries,
 )
-from odp.core.snowflake import get_snowflake_queries, get_snowflake_schema, load_snowflake_credentials
+from odp.core.snowflake import get_snowflake_queries, get_snowflake_schema, \
+    load_snowflake_credentials, get_snowflake_connection
 from odp.core.types import Dialect, Grain, validate_dialect, validate_grain
 
 load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"))
@@ -82,12 +83,13 @@ def cli_detect_unused_columns(
 Missing or invalid parameters: {e}. Please provide either
 
    1. both of --info-schema-file and --queries-file (use "odp show-queries" to learn how to generate these)
-   2. valid crendentials via env, e.g. ODP_SNOWFLAKE_ACCOUNT, ODP_SNOWFLAKE_USER, etc
+   2. valid credentials via env, e.g. ODP_SNOWFLAKE_ACCOUNT, ODP_SNOWFLAKE_USERNAME, etc
             """
             ) from e
 
-        schema = get_snowflake_schema(credentials)
-        queries = get_snowflake_queries(credentials, since_days)
+        conn = get_snowflake_connection(credentials)
+        schema = get_snowflake_schema(credentials, conn)
+        queries = get_snowflake_queries(credentials, since_days, conn)
 
         info_schema, info_schema_flat = build_info_schema(schema)
         if grain == Grain.column:
