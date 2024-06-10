@@ -95,10 +95,15 @@ docker run --rm -it \
 You can also import the library into your project
 
 ```python
-from odp.core.detect_unused import detect_unused_tables
-from odp.core.snowflake import SnowflakeCredentials, get_snowflake_schema, get_snowflake_queries
-from odp.core.types import Dialect, QueryRow
-import snowflake.connector
+import os
+from odp.core.detect_unused import build_info_schema, detect_unused_tables
+from odp.core.snowflake import (
+    SnowflakeCredentials,
+    get_snowflake_connection,
+    get_snowflake_queries,
+    get_snowflake_schema,
+)
+from odp.core.types import Dialect
 
 
 def main():
@@ -111,8 +116,10 @@ def main():
         snowflake_role=os.environ.get("ODP_SNOWFLAKE_ROLE"),
     )
 
-    info_schema, info_schema_flat = get_snowflake_schema(credentials)
-    queries = get_snowflake_queries(credentials, since_days=60)
+    conn = get_snowflake_connection(credentials)
+    schema = get_snowflake_schema(conn)
+    info_schema, info_schema_flat = build_info_schema(schema)
+    queries = get_snowflake_queries(conn, since_days=60)
 
     unused_tables = detect_unused_tables(
         queries=queries,
@@ -123,11 +130,11 @@ def main():
 
     print("Unused Tables:")
     for table in unused_tables:
-      print(table)
+        print(table)
+
 
 if __name__ == "__main__":
     main()
-
 ```
 
 #### Generic Files vs. Connection
