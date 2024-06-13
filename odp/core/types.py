@@ -40,6 +40,9 @@ class Grain(Enum):
     table = "table"
     column = "column"
 
+    def plural(self) -> str:
+        return f'{self.value}s'
+
 
 def validate_grain(ctx: Any, param: Any, value: str) -> Grain:
     try:

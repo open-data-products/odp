@@ -192,7 +192,7 @@ def detect_unused_columns(
     info_schema: dict,
     info_schema_flat: list[tuple],
     dialect: Dialect,
-) -> tuple[list[tuple], list[tuple[tuple, int]] | None]:
+) -> tuple[list[tuple[str, str, str]], list[tuple[tuple, int]] | None]:
     cols = [
         extract_columns(
             query.QUERY_TEXT,
@@ -224,7 +224,7 @@ def detect_unused_tables(
     info_schema: dict,
     info_schema_flat: list[tuple],
     dialect: Dialect,
-) -> tuple[list[tuple], list[tuple[tuple, int]] | None]:
+) -> tuple[list[tuple[str, str, str]], list[tuple[tuple, int]] | None]:
     tables = [
         extract_tables(
             query.QUERY_TEXT,
