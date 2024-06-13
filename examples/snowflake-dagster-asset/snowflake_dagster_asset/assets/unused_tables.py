@@ -10,6 +10,7 @@ from .constants import UNUSED_TABLES_OUTPUT
 
 class UnusedTablesConfig(Config):
     since_days: int = 60
+    target_table: str = "dex_dev.dex_dev.unused_tables"
 
 
 @asset
@@ -32,6 +33,15 @@ def unused_tables(
         info_schema_flat=info_schema_flat,
         dialect=Dialect.snowflake,
     )
+
+    with snowflake.get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("CREATE OR REPLACE TABLE IDENTIFIER({target_table}) (table_name STRING)", params={
+                "target_table": config.target_table,
+            })
+
+            for table in unused_tables:
+                cur.execute(f"INSERT INTO {config.target_table} VALUES ('{table}')")
 
 
     with open(UNUSED_TABLES_OUTPUT, "w") as f:
