@@ -23,15 +23,28 @@ def unused_tables(
 
     info_schema, info_schema_flat = build_info_schema(schema)
 
-    tables, most_common_tables = detect_unused_tables(
+    print(info_schema)
+    print(info_schema_flat)
+
+    unused_tables, most_common_tables = detect_unused_tables(
         queries=queries,
         info_schema=info_schema,
         info_schema_flat=info_schema_flat,
         dialect=Dialect.snowflake,
     )
 
+
     with open(UNUSED_TABLES_OUTPUT, "w") as f:
-        for table in tables:
+        if most_common_tables is not None:
+            f.write(f"Most common tables:\n")
+            for tbl, count in most_common_tables:
+                catalog, db, table = (obj.upper() for obj in tbl)
+                f.write(f"{catalog}.{db}.{table}: {count}\n")
+        else:
+            f.write("No most common tables found in provided date range\n")
+
+        f.write(f"Unused tables ({len(unused_tables)}):\n")
+        for table in sorted(unused_tables):
             f.write(f"{table}\n")
 
 

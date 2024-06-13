@@ -8,6 +8,13 @@ First, install your Dagster code location as a Python package. By using the --ed
 
 ```bash
 pip install -e ".[dev]"
+pip install -e ../.. # install local odp package
+```
+
+You'll need to configure snowflake credentials to use the asset in this project:
+
+```bash
+cp .env.example .env
 ```
 
 Then, start the Dagster UI web server:
@@ -18,30 +25,15 @@ dagster dev
 
 Open http://localhost:3000 with your browser to see the project.
 
-You can start writing assets in `snowflake_dagster_asset/assets.py`. The assets are automatically loaded into the Dagster code location as you define them.
+The project exposes a single asset, `unused_tables` - if you materialize this asset, you'll get a file at `data/staging/unused_tables.txt` that has a basic example of the CLI output:
 
-## Development
-
-### Adding new Python dependencies
-
-You can specify new Python dependencies in `setup.py`.
-
-### Unit testing
-
-Tests are in the `snowflake_dagster_asset_tests` directory and you can run tests using `pytest`:
-
-```bash
-pytest snowflake_dagster_asset_tests
 ```
-
-### Schedules and sensors
-
-If you want to enable Dagster [Schedules](https://docs.dagster.io/concepts/partitions-schedules-sensors/schedules) or [Sensors](https://docs.dagster.io/concepts/partitions-schedules-sensors/sensors) for your jobs, the [Dagster Daemon](https://docs.dagster.io/deployment/dagster-daemon) process must be running. This is done automatically when you run `dagster dev`.
-
-Once your Dagster Daemon is running, you can start turning on schedules and sensors for your jobs.
-
-## Deploy on Dagster Cloud
-
-The easiest way to deploy your Dagster project is to use Dagster Cloud.
-
-Check out the [Dagster Cloud Documentation](https://docs.dagster.cloud) to learn more.
+Most common tables (20):
+('CATALOG', 'PUBLIC', 'AGG_DAILY'): 30
+('CATALOG', 'PUBLIC', 'BRAND'): 27
+...
+Unused tables (27):
+('CATALOG', 'PUBLIC', 'AD_CLICK')
+('CATALOG', 'PUBLIC', 'AD_COMBINED')
+('CATALOG', 'PUBLIC', 'AD_CONVERSION')
+```

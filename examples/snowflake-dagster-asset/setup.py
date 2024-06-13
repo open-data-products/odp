@@ -7,7 +7,6 @@ setup(
         "dagster",
         "dagster-cloud",
         "dagster-snowflake",
-        "odp",
     ],
     extras_require={"dev": ["dagster-webserver", "pytest"]},
 )
