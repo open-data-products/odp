@@ -1,9 +1,13 @@
 from dagster import Definitions, load_assets_from_modules
 
-from . import assets
+from .assets import unused_tables
+from .resources import snowflake
 
-all_assets = load_assets_from_modules([assets])
+unused_tables_assets = load_assets_from_modules([unused_tables])
 
 defs = Definitions(
-    assets=all_assets,
+    assets=[*unused_tables_assets],
+    resources={
+        "snowflake": snowflake,
+    },
 )
