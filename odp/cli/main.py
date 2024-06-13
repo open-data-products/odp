@@ -97,9 +97,27 @@ Missing or invalid parameters: {e}. Please provide either
 
         info_schema, info_schema_flat = build_info_schema(schema)
         if grain == Grain.column:
-            detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
+            unused_cols, most_common_cols = detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
+
+            if most_common_cols is not None:
+                for col, count in most_common_cols:
+                    print(f"{col}: {count}")
+            print(f"Unused columns ({len(unused_cols)}):")
+            for col in unused_cols:
+                print(col)
         elif grain == Grain.table:
-            detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
+            unused_tables, most_common_tables = detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
+            if most_common_tables is not None:
+                print(f"Most common tables:")
+                for tbl, count in most_common_tables:
+                    catalog, db, table = (obj.upper() for obj in tbl)
+                    print(f"{catalog}.{db}.{table}: {count}")
+            else:
+                print("No most common tables found in provided date range")
+
+            print(f"Unused tables ({len(unused_tables)}):")
+            for table in sorted(unused_tables):
+                print(table)
         elif grain == Grain.schema:
             raise NotImplementedError("Schema grain is not yet supported")
     elif dialect == Dialect.bigquery:

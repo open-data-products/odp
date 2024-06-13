@@ -192,7 +192,7 @@ def detect_unused_columns(
     info_schema: dict,
     info_schema_flat: list[tuple],
     dialect: Dialect,
-) -> None:
+) -> tuple[list[tuple], list[tuple[tuple, int]] | None]:
     cols = [
         extract_columns(
             query.QUERY_TEXT,
@@ -203,24 +203,20 @@ def detect_unused_columns(
         )
         for query in queries
     ]
-    col_counts = summarize_columns(cols)
+    col_counts: Counter = summarize_columns(cols)
 
-    # Print the most common columns in a human readable format with one column per line
+    # Print the most common columns in a human-readable format with one column per line
     if len(col_counts) > 0:
         max_len = 20 if len(col_counts) > 20 else len(col_counts)
-        print(f"Most common columns (up to {max_len}):")
-        for col, count in col_counts.most_common(max_len):
-            print(f"{col}: {count}")
+        most_common_cols = col_counts.most_common(max_len)
     else:
-        print("No most common columns found in provided date range")
+        most_common_cols = None
 
     # Identify columns that are never used by comparing the columns in the info schema to the columns in the queries
     info_schema_cols = set(info_schema_flat)
     used_cols = set(col_counts.keys())
     unused_cols = sorted(info_schema_cols - used_cols)
-    print(f"Unused columns ({len(unused_cols)}):")
-    for col in unused_cols:
-        print(col)
+    return unused_cols, most_common_cols
 
 
 def detect_unused_tables(
@@ -228,7 +224,7 @@ def detect_unused_tables(
     info_schema: dict,
     info_schema_flat: list[tuple],
     dialect: Dialect,
-) -> list[tuple]:
+) -> tuple[list[tuple], list[tuple[tuple, int]] | None]:
     tables = [
         extract_tables(
             query.QUERY_TEXT,
@@ -246,12 +242,9 @@ def detect_unused_tables(
     # Print the most common tables in a human-readable format with one table per line
     if len(table_counts) > 0:
         max_len = 20 if len(table_counts) > 20 else len(table_counts)
-        print(f"Most common tables (up to {max_len}):")
-        for tbl, count in table_counts.most_common(max_len):
-            catalog, db, table = (obj.upper() for obj in tbl)
-            print(f"{catalog}.{db}.{table}: {count}")
+        most_common_tables = table_counts.most_common(max_len)
     else:
-        print("No most common tables found in provided date range")
+        most_common_tables = None
 
     # Identify tables that are never used by comparing the tables in the info schema to the tables in the queries
     info_schema_tables = set()
@@ -260,7 +253,4 @@ def detect_unused_tables(
 
     used_tables = set(table_counts.keys())
     unused_tables = sorted(info_schema_tables - used_tables)
-    print(f"Unused tables ({len(unused_tables)}):")
-    for table in sorted(unused_tables):
-        print(table)
-    return unused_tables
+    return unused_tables, most_common_tables
