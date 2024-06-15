@@ -19,15 +19,17 @@ class SnowflakeCredentials(BaseModel):
 
 def load_snowflake_credentials() -> SnowflakeCredentials:
     """
-    Load snowflake credentials from the .env-formatted file object
+    Load snowflake credentials from env.
+
+    Use ODP_ prefixed vars if present, fall back to standard SNOWFLAKE_ prefix.
     """
     return SnowflakeCredentials(
-        snowflake_account=os.environ["ODP_SNOWFLAKE_ACCOUNT"],
-        snowflake_user=os.environ["ODP_SNOWFLAKE_USERNAME"],
-        snowflake_password=os.environ["ODP_SNOWFLAKE_PASSWORD"],
-        snowflake_database=os.environ["ODP_SNOWFLAKE_DATABASE"],
-        snowflake_warehouse=os.environ.get("ODP_SNOWFLAKE_WAREHOUSE"),
-        snowflake_role=os.environ.get("ODP_SNOWFLAKE_ROLE"),
+        snowflake_account=os.getenv("ODP_SNOWFLAKE_ACCOUNT", os.getenv("SNOWFLAKE_ACCOUNT")),
+        snowflake_user=os.getenv("ODP_SNOWFLAKE_USER", os.getenv("SNOWFLAKE_USERNAME")),
+        snowflake_password=os.getenv("ODP_SNOWFLAKE_PASSWORD", os.getenv("SNOWFLAKE_PASSWORD")),
+        snowflake_database=os.getenv("ODP_SNOWFLAKE_DATABASE", os.getenv("SNOWFLAKE_DATABASE")),
+        snowflake_warehouse=os.getenv("ODP_SNOWFLAKE_WAREHOUSE", os.getenv("SNOWFLAKE_WAREHOUSE")),
+        snowflake_role=os.getenv("ODP_SNOWFLAKE_ROLE", os.getenv("SNOWFLAKE_ROLE")),
     )
 
 
