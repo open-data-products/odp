@@ -41,7 +41,7 @@ class Grain(Enum):
     column = "column"
 
     def plural(self) -> str:
-        return f'{self.value}s'
+        return f"{self.value}s"
 
 
 def validate_grain(ctx: Any, param: Any, value: str) -> Grain:

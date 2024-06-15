@@ -228,8 +228,8 @@ def detect_unused_tables(
     tables = [
         extract_tables(
             query.QUERY_TEXT,
-            database_name=query.DATABASE_NAME.upper() if query.DATABASE_NAME else None,
-            catalog_name=query.SCHEMA_NAME.upper() if query.SCHEMA_NAME else None,
+            catalog_name=query.DATABASE_NAME.upper() if query.DATABASE_NAME else None,
+            database_name=query.SCHEMA_NAME.upper() if query.SCHEMA_NAME else None,
             schema=info_schema,
             dialect=dialect,
         )

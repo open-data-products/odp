@@ -112,3 +112,7 @@ source = ["odp"]
 
 [tool.ruff.mccabe]
 max-complexity = 12
+
+
+[tool.deptry]
+exclude = ["examples", "venv", ".venv"]

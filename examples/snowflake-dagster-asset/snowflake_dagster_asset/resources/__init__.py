@@ -1,7 +1,6 @@
 from dagster import EnvVar
 from dagster_snowflake import SnowflakeResource
 
-
 snowflake = SnowflakeResource(
     account=EnvVar("SNOWFLAKE_ACCOUNT"),  # required
     user=EnvVar("SNOWFLAKE_USERNAME"),  # required

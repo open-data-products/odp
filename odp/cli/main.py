@@ -115,11 +115,11 @@ Missing or invalid parameters: {e}. Please provide either
 def print_results(
     most_common: list[tuple[tuple[str, str, str], int]] | None,
     unused: list[tuple[str, str, str]],
-    grain=Grain.table,
-):
-    def render(asset: tuple):
+    grain: Grain = Grain.table,
+) -> None:
+    def render(obj: tuple) -> str:
         """Render a table or column tuple as a string"""
-        return ".".join([x.upper() for x in asset])
+        return ".".join([x.upper() for x in obj])
 
     if most_common is not None:
         print(f"Most common {grain.plural()}:")

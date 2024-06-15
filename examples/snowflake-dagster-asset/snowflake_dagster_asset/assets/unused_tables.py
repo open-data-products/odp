@@ -1,8 +1,8 @@
-from dagster import asset, Config
+from dagster import Config, asset
 from dagster_snowflake import SnowflakeResource
 
+from odp.core.detect_unused import build_info_schema, detect_unused_tables
 from odp.core.snowflake import get_snowflake_queries, get_snowflake_schema
-from odp.core.detect_unused import detect_unused_tables, build_info_schema
 from odp.core.types import Dialect
 
 from .constants import UNUSED_TABLES_OUTPUT
@@ -34,19 +34,9 @@ def unused_tables(
         dialect=Dialect.snowflake,
     )
 
-    with snowflake.get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("CREATE OR REPLACE TABLE IDENTIFIER({target_table}) (table_name STRING)", params={
-                "target_table": config.target_table,
-            })
-
-            for table in unused_tables:
-                cur.execute(f"INSERT INTO {config.target_table} VALUES ('{table}')")
-
-
     with open(UNUSED_TABLES_OUTPUT, "w") as f:
         if most_common_tables is not None:
-            f.write(f"Most common tables:\n")
+            f.write("Most common tables:\n")
             for tbl, count in most_common_tables:
                 catalog, db, table = (obj.upper() for obj in tbl)
                 f.write(f"{catalog}.{db}.{table}: {count}\n")
@@ -56,7 +46,3 @@ def unused_tables(
         f.write(f"Unused tables ({len(unused_tables)}):\n")
         for table in sorted(unused_tables):
             f.write(f"{table}\n")
-
-
-
-
