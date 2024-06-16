@@ -12,6 +12,7 @@ from odp.core.types import Dialect, QueryRow, SchemaRow
 
 def read_queries(
     query_file: str,
+
     since: int,
 ) -> list[QueryRow]:
     since_datetime = datetime.now(timezone.utc) - timedelta(days=since)
@@ -131,10 +132,10 @@ def extract_columns(
 
 def extract_tables(
     query_text: str,
-    database_name: str | None,
-    catalog_name: str | None,
     schema: dict,
     dialect: Dialect,
+    database_name: str | None = None,
+    catalog_name: str | None = None,
 ) -> list[tuple]:
     # Extract the tables from a query that map to actual columns in a table
     # Based on https://github.com/tobymao/sqlglot/blob/main/posts/ast_primer.md
