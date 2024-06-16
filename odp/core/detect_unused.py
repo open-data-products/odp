@@ -4,7 +4,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from sqlglot import exp, parse_one  # type: ignore
+from sqlglot import MappingSchema, exp, parse_one  # type: ignore
 from sqlglot.optimizer.qualify import qualify  # type: ignore
 from sqlglot.optimizer.scope import build_scope, find_all_in_scope  # type: ignore
 
@@ -134,7 +134,7 @@ def extract_columns(
 
 def extract_tables(
     query_text: str,
-    schema: dict,
+    schema: dict | MappingSchema,
     dialect: Dialect,
     catalog_name: str | None = None,
     database_name: str | None = None,
