@@ -4,7 +4,7 @@ from datetime import datetime
 import snowflake.connector
 from pydantic import BaseModel
 from snowflake.connector import SnowflakeConnection
-from sqlglot import MappingSchema
+from sqlglot import MappingSchema  # type: ignore
 
 from odp.core.detect_unused import extract_tables
 from odp.core.types import Dialect, EnrichedQueryRow, QueryRow, SchemaRow
@@ -26,10 +26,10 @@ def load_snowflake_credentials() -> SnowflakeCredentials:
     Use ODP_ prefixed vars if present, fall back to standard SNOWFLAKE_ prefix.
     """
     return SnowflakeCredentials(
-        snowflake_account=os.getenv("ODP_SNOWFLAKE_ACCOUNT", os.getenv("SNOWFLAKE_ACCOUNT")),
-        snowflake_user=os.getenv("ODP_SNOWFLAKE_USERNAME", os.getenv("SNOWFLAKE_USERNAME")),
-        snowflake_password=os.getenv("ODP_SNOWFLAKE_PASSWORD", os.getenv("SNOWFLAKE_PASSWORD")),
-        snowflake_database=os.getenv("ODP_SNOWFLAKE_DATABASE", os.getenv("SNOWFLAKE_DATABASE")),
+        snowflake_account=os.getenv("ODP_SNOWFLAKE_ACCOUNT", os.getenv("SNOWFLAKE_ACCOUNT")),  # type: ignore[arg-type]
+        snowflake_user=os.getenv("ODP_SNOWFLAKE_USERNAME", os.getenv("SNOWFLAKE_USERNAME")),  # type: ignore[arg-type]
+        snowflake_password=os.getenv("ODP_SNOWFLAKE_PASSWORD", os.getenv("SNOWFLAKE_PASSWORD")),  # type: ignore[arg-type]
+        snowflake_database=os.getenv("ODP_SNOWFLAKE_DATABASE", os.getenv("SNOWFLAKE_DATABASE")),  # type: ignore[arg-type]
         snowflake_warehouse=os.getenv("ODP_SNOWFLAKE_WAREHOUSE", os.getenv("SNOWFLAKE_WAREHOUSE")),
         snowflake_role=os.getenv("ODP_SNOWFLAKE_ROLE", os.getenv("SNOWFLAKE_ROLE")),
     )

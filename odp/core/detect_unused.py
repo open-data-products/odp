@@ -4,9 +4,9 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from sqlglot import exp, parse_one
-from sqlglot.optimizer.qualify import qualify
-from sqlglot.optimizer.scope import build_scope, find_all_in_scope
+from sqlglot import exp, parse_one  # type: ignore
+from sqlglot.optimizer.qualify import qualify  # type: ignore
+from sqlglot.optimizer.scope import build_scope, find_all_in_scope  # type: ignore
 
 from odp.core.types import Dialect, QueryRow, SchemaRow
 
@@ -257,7 +257,3 @@ def detect_unused_tables(
     used_tables = set(table_counts.keys())
     unused_tables = sorted(info_schema_tables - used_tables)
     return unused_tables, most_common_tables
-
-
-def hello():
-    return "Hello, World!"
