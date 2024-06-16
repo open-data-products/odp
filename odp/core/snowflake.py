@@ -4,7 +4,7 @@ from datetime import datetime
 import snowflake.connector
 from pydantic import BaseModel
 from snowflake.connector import SnowflakeConnection
-from sqlglot import MappingSchema  # type: ignore
+from sqlglot import MappingSchema
 
 from odp.core.detect_unused import extract_tables
 from odp.core.types import Dialect, EnrichedQueryRow, QueryRow, SchemaRow
@@ -46,7 +46,7 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
     )
 
 
-def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> list[EnrichedQueryRow]:  # type: ignore[no-any-unimported]
+def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> list[EnrichedQueryRow]:
     res = []
     for row in query_rows:
         used_tables = extract_tables(

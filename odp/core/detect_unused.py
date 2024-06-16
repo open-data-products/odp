@@ -4,9 +4,9 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from sqlglot import MappingSchema, exp, parse_one  # type: ignore
-from sqlglot.optimizer.qualify import qualify  # type: ignore
-from sqlglot.optimizer.scope import build_scope, find_all_in_scope  # type: ignore
+from sqlglot import MappingSchema, exp, parse_one
+from sqlglot.optimizer.qualify import qualify
+from sqlglot.optimizer.scope import build_scope, find_all_in_scope
 
 from odp.core.types import Dialect, QueryRow, SchemaRow
 
