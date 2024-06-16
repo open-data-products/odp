@@ -12,9 +12,9 @@ from odp.core.types import Dialect, QueryRow, SchemaRow
 
 logger = logging.getLogger(__name__)
 
+
 def read_queries(
     query_file: str,
-
     since: int,
 ) -> list[QueryRow]:
     since_datetime = datetime.now(timezone.utc) - timedelta(days=since)

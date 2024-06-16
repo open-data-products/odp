@@ -87,6 +87,7 @@ def test_extract_tables_with_invalid_query():
 
     assert result == []
 
+
 def test_extract_tables_with_create_table_as():
     query_text = """
       CREATE OR REPLACE TABLE issue_state_history AS
