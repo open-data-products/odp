@@ -46,7 +46,7 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
     )
 
 
-def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> list[EnrichedQueryRow]:
+def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> list[EnrichedQueryRow]:  # type: ignore[no-any-unimported]
     res = []
     for row in query_rows:
         used_tables = extract_tables(

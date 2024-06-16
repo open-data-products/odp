@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 
 import click
 from dotenv import load_dotenv
@@ -95,7 +96,13 @@ Missing or invalid parameters: {e}. Please provide either
 
         conn = get_snowflake_connection(credentials)
         schema = get_snowflake_schema(conn)
-        queries = get_snowflake_queries(conn, since_days)
+        before_date = datetime.combine(datetime.now(), datetime.max.time())
+        since_date = before_date - timedelta(days=since_days)
+        queries = get_snowflake_queries(
+            conn,
+            since_datetime=since_date,
+            before_datetime=before_date,
+        )
 
         info_schema, info_schema_flat = build_info_schema(schema)
         if grain == Grain.column:
