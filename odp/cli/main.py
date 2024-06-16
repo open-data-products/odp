@@ -70,9 +70,11 @@ def cli_detect_unused_columns(
         info_schema, info_schema_flat = read_info_schema_from_file(schema_file)
         print(f"Read {len(info_schema_flat)} information schema rows from {schema_file}")
         if grain == Grain.column:
-            detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
+            unused, most_common = detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
+            print_results(most_common, unused, grain)
         elif grain == Grain.table:
-            detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
+            unused, most_common = detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
+            print_results(most_common, unused, grain)
         elif grain == Grain.schema:
             raise NotImplementedError("Schema grain is not yet supported")
 
@@ -97,15 +99,37 @@ Missing or invalid parameters: {e}. Please provide either
 
         info_schema, info_schema_flat = build_info_schema(schema)
         if grain == Grain.column:
-            detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
+            unused, most_common = detect_unused_columns(queries, info_schema, info_schema_flat, dialect)
+            print_results(most_common, unused, grain)
         elif grain == Grain.table:
-            detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
+            unused, most_common = detect_unused_tables(queries, info_schema, info_schema_flat, dialect)
+            print_results(most_common, unused, grain)
         elif grain == Grain.schema:
             raise NotImplementedError("Schema grain is not yet supported")
     elif dialect == Dialect.bigquery:
         raise NotImplementedError("Loading BigQuery data via credentials is not yet supported")
     elif dialect == Dialect.redshift:
         raise NotImplementedError("Loading Redshift data via credentials is not yet supported")
+
+
+def print_results(
+    most_common: list[tuple[tuple[str, str, str], int]] | None,
+    unused: list[tuple[str, str, str]],
+    grain: Grain = Grain.table,
+) -> None:
+    def render(obj: tuple) -> str:
+        """Render a table or column tuple as a string"""
+        return ".".join([x.upper() for x in obj])
+
+    if most_common is not None:
+        print(f"Most common {grain.plural()}:")
+        for asset, count in most_common:
+            print(f"{render(asset)}: {count}")
+    else:
+        print(f"No most common {grain.plural()} found in provided date range")
+    print(f"Unused {grain.plural()} ({len(unused)}):")
+    for asset in sorted(unused):
+        print(f"{render(asset)}")
 
 
 @cli.command("show-queries")

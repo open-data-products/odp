@@ -1,3 +1,6 @@
+from sqlglot import parse_one
+from sqlglot.optimizer.qualify import qualify
+
 from odp.core.detect_unused import extract_tables
 from odp.core.types import Dialect
 
@@ -62,3 +65,41 @@ def test_extract_tables_with_invalid_query():
     result = extract_tables(query_text, database_name, catalog_name, schema, dialect)
 
     assert result == []
+
+def test_extract_tables_with_create_table_as():
+    query_text = """
+      CREATE OR REPLACE TABLE issue_state_history AS
+      SELECT
+          updated_at AS date,
+          SUM(CASE WHEN new_state = 'open' THEN 1 ELSE 0 END) AS open,
+          SUM(CASE WHEN new_state = 'in progress' THEN 1 ELSE 0 END) AS in_progress,
+          SUM(CASE WHEN new_state = 'closed' THEN 1 ELSE 0 END) AS closed
+      FROM issues_by_day
+      GROUP BY updated_at
+      ORDER BY updated_at;
+    """
+    catalog_name = "test_catalog"
+    database_name = "test_db"
+    schema = {
+        "test_catalog": {
+            "test_db": {
+                "issues_by_day": {
+                    "new_state": "string",
+                    "updated_at": "datettime",
+                },
+            }
+        }
+    }
+    dialect = Dialect.snowflake
+
+    result = extract_tables(
+        query_text=query_text,
+        catalog_name=catalog_name,
+        database_name=database_name,
+        schema=schema,
+        dialect=dialect,
+    )
+
+    assert result == [
+        ("test_catalog", "test_db", "ISSUES_BY_DAY"),
+    ]
