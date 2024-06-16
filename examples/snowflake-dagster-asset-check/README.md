@@ -1,5 +1,7 @@
 # snowflake_dagster_asset_check
 
+### :warning: work in progress! :warning:
+
 This example uses ODP as a dagster Asset Check to flag an asset as unhealthy if it has not been used in the last 30 days, or (soon) if it has significantly declining usage across different moving averages.
 
 In this project, we generate two tables in snowflake, one of which is built from the other. Incidentally, this will cause one of them to appear as unused.
