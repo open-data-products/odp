@@ -78,8 +78,6 @@ select = [
     "E", "W",
     # pyflakes
     "F",
-    # pygrep-hooks
-    "PGH",
     # pyupgrade
     "UP",
     # ruff
