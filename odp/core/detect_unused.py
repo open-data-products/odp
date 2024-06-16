@@ -152,10 +152,11 @@ def extract_tables(
             qualify_columns=False,  # we don't care about columns here
         )
         root = build_scope(qualified)
-    except Exception:
+    except Exception as e:
         # todo - debug log these / write to file
         # print("Error parsing query", e, query_text)
-        return []
+        raise
+        # return []
 
     if root is None:
         return []

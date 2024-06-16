@@ -25,7 +25,7 @@ def load_snowflake_credentials() -> SnowflakeCredentials:
     """
     return SnowflakeCredentials(
         snowflake_account=os.getenv("ODP_SNOWFLAKE_ACCOUNT", os.getenv("SNOWFLAKE_ACCOUNT")),
-        snowflake_user=os.getenv("ODP_SNOWFLAKE_USER", os.getenv("SNOWFLAKE_USERNAME")),
+        snowflake_user=os.getenv("ODP_SNOWFLAKE_USERNAME", os.getenv("SNOWFLAKE_USERNAME")),
         snowflake_password=os.getenv("ODP_SNOWFLAKE_PASSWORD", os.getenv("SNOWFLAKE_PASSWORD")),
         snowflake_database=os.getenv("ODP_SNOWFLAKE_DATABASE", os.getenv("SNOWFLAKE_DATABASE")),
         snowflake_warehouse=os.getenv("ODP_SNOWFLAKE_WAREHOUSE", os.getenv("SNOWFLAKE_WAREHOUSE")),
@@ -54,9 +54,10 @@ def get_snowflake_queries(conn: SnowflakeConnection, since_days: int) -> list[Qu
     sql = """
 SELECT QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME
 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
-WHERE QUERY_TEXT ILIKE 'select%%'
+WHERE QUERY_TEXT ILIKE '%%select%%'
     AND DATABASE_NAME = %(database_name)s
     AND START_TIME > %(start_datetime)s
+    AND ERROR_CODE IS NULL
 ORDER BY START_TIME DESC
 LIMIT 10000;
         """
