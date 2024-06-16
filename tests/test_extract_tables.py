@@ -1,6 +1,3 @@
-from sqlglot import parse_one
-from sqlglot.optimizer.qualify import qualify
-
 from odp.core.detect_unused import extract_tables
 from odp.core.types import Dialect
 
@@ -65,6 +62,7 @@ def test_extract_tables_with_invalid_query():
     result = extract_tables(query_text, database_name, catalog_name, schema, dialect)
 
     assert result == []
+
 
 def test_extract_tables_with_create_table_as():
     query_text = """

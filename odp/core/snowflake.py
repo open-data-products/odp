@@ -1,14 +1,13 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import snowflake.connector
 from pydantic import BaseModel
 from snowflake.connector import SnowflakeConnection
-
 from sqlglot import MappingSchema
 
-from odp.core.types import QueryRow, SchemaRow, EnrichedQueryRow, Dialect
 from odp.core.detect_unused import extract_tables
+from odp.core.types import Dialect, EnrichedQueryRow, QueryRow, SchemaRow
 
 
 class SnowflakeCredentials(BaseModel):
@@ -46,9 +45,8 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
         warehouse=credentials.snowflake_warehouse,
     )
 
-def parse_snowflake_query(
-    query_rows: list[QueryRow], schema: MappingSchema
-) -> list[EnrichedQueryRow]:
+
+def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> list[EnrichedQueryRow]:
     res = []
     for row in query_rows:
         used_tables = extract_tables(
@@ -61,11 +59,7 @@ def parse_snowflake_query(
             DATABASE_NAME=row.DATABASE_NAME,
             SCHEMA_NAME=row.SCHEMA_NAME,
             START_TIME=row.START_TIME,
-            USED_TABLES=[
-                ".".join([part.upper() for part in table])
-                for table in used_tables
-            ],
-
+            USED_TABLES=[".".join([part.upper() for part in table]) for table in used_tables],
         )
         res.append(enriched_row)
     return res

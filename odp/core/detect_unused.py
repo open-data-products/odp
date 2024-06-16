@@ -12,9 +12,9 @@ from odp.core.types import Dialect, QueryRow, SchemaRow
 
 logger = logging.getLogger(__name__)
 
+
 def read_queries(
     query_file: str,
-
     since: int,
 ) -> list[QueryRow]:
     since_datetime = datetime.now(timezone.utc) - timedelta(days=since)
@@ -257,3 +257,7 @@ def detect_unused_tables(
     used_tables = set(table_counts.keys())
     unused_tables = sorted(info_schema_tables - used_tables)
     return unused_tables, most_common_tables
+
+
+def hello():
+    return "Hello, World!"
