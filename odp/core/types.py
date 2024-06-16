@@ -12,8 +12,10 @@ class QueryRow(BaseModel):
     DATABASE_NAME: str | None
     SCHEMA_NAME: str | None
 
+
 class EnrichedQueryRow(QueryRow):
     USED_TABLES: list[str]
+
 
 class SchemaRow(BaseModel):
     TABLE_CATALOG: str

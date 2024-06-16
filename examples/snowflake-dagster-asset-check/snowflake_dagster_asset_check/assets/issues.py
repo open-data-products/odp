@@ -1,6 +1,7 @@
 from dagster import asset
 from dagster_snowflake import SnowflakeResource
 
+
 @asset
 def issues_history(
     snowflake: SnowflakeResource,
@@ -25,13 +26,13 @@ def issues_history(
                 new_state STRING,
                 updated_at DATE
             );
-            
+
             """
         )
 
         cur.execute(
             """
-            INSERT INTO issues_by_day (issue_id, new_state, updated_at) VALUES 
+            INSERT INTO issues_by_day (issue_id, new_state, updated_at) VALUES
               (1, 'open', '2021-01-01'),
               (1, 'in progress', '2021-01-02'),
               (2, 'open', '2021-01-02'),
@@ -41,6 +42,7 @@ def issues_history(
             ;
             """
         )
+
 
 @asset(
     deps=["issues_history"],

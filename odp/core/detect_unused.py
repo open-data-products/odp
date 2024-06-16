@@ -4,7 +4,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from sqlglot import exp, parse_one
+from sqlglot import MappingSchema, exp, parse_one
 from sqlglot.optimizer.qualify import qualify
 from sqlglot.optimizer.scope import build_scope, find_all_in_scope
 
@@ -12,9 +12,9 @@ from odp.core.types import Dialect, QueryRow, SchemaRow
 
 logger = logging.getLogger(__name__)
 
+
 def read_queries(
     query_file: str,
-
     since: int,
 ) -> list[QueryRow]:
     since_datetime = datetime.now(timezone.utc) - timedelta(days=since)
@@ -134,10 +134,10 @@ def extract_columns(
 
 def extract_tables(
     query_text: str,
-    schema: dict,
+    schema: dict | MappingSchema,
     dialect: Dialect,
-    database_name: str | None = None,
     catalog_name: str | None = None,
+    database_name: str | None = None,
 ) -> list[tuple]:
     # Extract the tables from a query that map to actual columns in a table
     # Based on https://github.com/tobymao/sqlglot/blob/main/posts/ast_primer.md
@@ -145,8 +145,8 @@ def extract_tables(
         parsed = parse_one(query_text, dialect=dialect.value)
         qualified = qualify(
             parsed,
-            db=database_name,
             catalog=catalog_name,
+            db=database_name,
             schema=schema,
             dialect=dialect.value,
             infer_schema=True,

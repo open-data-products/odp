@@ -1,14 +1,13 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import snowflake.connector
 from pydantic import BaseModel
 from snowflake.connector import SnowflakeConnection
-
 from sqlglot import MappingSchema
 
-from odp.core.types import QueryRow, SchemaRow, EnrichedQueryRow, Dialect
 from odp.core.detect_unused import extract_tables
+from odp.core.types import Dialect, EnrichedQueryRow, QueryRow, SchemaRow
 
 
 class SnowflakeCredentials(BaseModel):
@@ -27,10 +26,10 @@ def load_snowflake_credentials() -> SnowflakeCredentials:
     Use ODP_ prefixed vars if present, fall back to standard SNOWFLAKE_ prefix.
     """
     return SnowflakeCredentials(
-        snowflake_account=os.getenv("ODP_SNOWFLAKE_ACCOUNT", os.getenv("SNOWFLAKE_ACCOUNT")),
-        snowflake_user=os.getenv("ODP_SNOWFLAKE_USERNAME", os.getenv("SNOWFLAKE_USERNAME")),
-        snowflake_password=os.getenv("ODP_SNOWFLAKE_PASSWORD", os.getenv("SNOWFLAKE_PASSWORD")),
-        snowflake_database=os.getenv("ODP_SNOWFLAKE_DATABASE", os.getenv("SNOWFLAKE_DATABASE")),
+        snowflake_account=os.getenv("ODP_SNOWFLAKE_ACCOUNT", os.getenv("SNOWFLAKE_ACCOUNT")),  # type: ignore[arg-type]
+        snowflake_user=os.getenv("ODP_SNOWFLAKE_USERNAME", os.getenv("SNOWFLAKE_USERNAME")),  # type: ignore[arg-type]
+        snowflake_password=os.getenv("ODP_SNOWFLAKE_PASSWORD", os.getenv("SNOWFLAKE_PASSWORD")),  # type: ignore[arg-type]
+        snowflake_database=os.getenv("ODP_SNOWFLAKE_DATABASE", os.getenv("SNOWFLAKE_DATABASE")),  # type: ignore[arg-type]
         snowflake_warehouse=os.getenv("ODP_SNOWFLAKE_WAREHOUSE", os.getenv("SNOWFLAKE_WAREHOUSE")),
         snowflake_role=os.getenv("ODP_SNOWFLAKE_ROLE", os.getenv("SNOWFLAKE_ROLE")),
     )
@@ -46,9 +45,8 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
         warehouse=credentials.snowflake_warehouse,
     )
 
-def parse_snowflake_query(
-    query_rows: list[QueryRow], schema: MappingSchema
-) -> list[EnrichedQueryRow]:
+
+def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> list[EnrichedQueryRow]:
     res = []
     for row in query_rows:
         used_tables = extract_tables(
@@ -61,11 +59,7 @@ def parse_snowflake_query(
             DATABASE_NAME=row.DATABASE_NAME,
             SCHEMA_NAME=row.SCHEMA_NAME,
             START_TIME=row.START_TIME,
-            USED_TABLES=[
-                ".".join([part.upper() for part in table])
-                for table in used_tables
-            ],
-
+            USED_TABLES=[".".join([part.upper() for part in table]) for table in used_tables],
         )
         res.append(enriched_row)
     return res
