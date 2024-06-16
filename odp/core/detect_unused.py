@@ -1,4 +1,5 @@
 import csv
+import logging
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -9,6 +10,7 @@ from sqlglot.optimizer.scope import build_scope, find_all_in_scope
 
 from odp.core.types import Dialect, QueryRow, SchemaRow
 
+logger = logging.getLogger(__name__)
 
 def read_queries(
     query_file: str,
@@ -91,9 +93,9 @@ def extract_columns(
             parsed, schema=schema, dialect=dialect.value
         )  # Qualify (add schema) and expand * to explicit columns
         root = build_scope(qualified)
-    except Exception:
+    except Exception as e:
+        logger.debug("Skipping failed query: %s, %s", query_text, e)
         # todo - debug log these / write to file
-        # print("Error parsing query", e, query_text)
         return []
     if root is None:
         return []
@@ -154,10 +156,9 @@ def extract_tables(
         )
         root = build_scope(qualified)
     except Exception as e:
+        logger.debug("Skipping failed query: %s, %s", query_text, e)
         # todo - debug log these / write to file
-        # print("Error parsing query", e, query_text)
-        raise
-        # return []
+        return []
 
     if root is None:
         return []
