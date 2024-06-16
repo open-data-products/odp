@@ -136,8 +136,8 @@ def extract_tables(
     query_text: str,
     schema: dict,
     dialect: Dialect,
-    database_name: str | None = None,
     catalog_name: str | None = None,
+    database_name: str | None = None,
 ) -> list[tuple]:
     # Extract the tables from a query that map to actual columns in a table
     # Based on https://github.com/tobymao/sqlglot/blob/main/posts/ast_primer.md
@@ -145,8 +145,8 @@ def extract_tables(
         parsed = parse_one(query_text, dialect=dialect.value)
         qualified = qualify(
             parsed,
-            db=database_name,
             catalog=catalog_name,
+            db=database_name,
             schema=schema,
             dialect=dialect.value,
             infer_schema=True,
