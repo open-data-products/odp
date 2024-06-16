@@ -5,7 +5,10 @@ import snowflake.connector
 from pydantic import BaseModel
 from snowflake.connector import SnowflakeConnection
 
-from odp.core.types import QueryRow, SchemaRow
+from sqlglot import MappingSchema
+
+from odp.core.types import QueryRow, SchemaRow, EnrichedQueryRow, Dialect
+from odp.core.detect_unused import extract_tables
 
 
 class SnowflakeCredentials(BaseModel):
@@ -43,20 +46,48 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
         warehouse=credentials.snowflake_warehouse,
     )
 
+def parse_snowflake_query(
+    query_rows: list[QueryRow], schema: MappingSchema
+) -> list[EnrichedQueryRow]:
+    res = []
+    for row in query_rows:
+        used_tables = extract_tables(
+            query_text=row.QUERY_TEXT,
+            dialect=Dialect.snowflake,
+            schema=schema,
+        )
+        enriched_row = EnrichedQueryRow(
+            QUERY_TEXT=row.QUERY_TEXT,
+            DATABASE_NAME=row.DATABASE_NAME,
+            SCHEMA_NAME=row.SCHEMA_NAME,
+            START_TIME=row.START_TIME,
+            USED_TABLES=[
+                ".".join([part.upper() for part in table])
+                for table in used_tables
+            ],
 
-def get_snowflake_queries(conn: SnowflakeConnection, since_days: int) -> list[QueryRow]:
-    start_datetime = datetime.now() - timedelta(days=since_days)
+        )
+        res.append(enriched_row)
+    return res
 
+
+def get_snowflake_queries(
+    conn: SnowflakeConnection,
+    since_datetime: datetime,
+    before_datetime: datetime,
+    database_name: str | None = None,
+) -> list[QueryRow]:
     # Create a cursor object.
     cur = conn.cursor()
 
     # Execute a statement that will generate a result set.
-    sql = """
+    sql = f"""
 SELECT QUERY_TEXT, DATABASE_NAME, SCHEMA_NAME, START_TIME
 FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
 WHERE QUERY_TEXT ILIKE '%%select%%'
-    AND DATABASE_NAME = %(database_name)s
-    AND START_TIME > %(start_datetime)s
+    {"" if database_name is None else "AND DATABASE_NAME = %(database_name)s"}
+    AND START_TIME > %(since_datetime)s
+    AND START_TIME < %(before_datetime)s
     AND ERROR_CODE IS NULL
 ORDER BY START_TIME DESC
 LIMIT 10000;
@@ -65,7 +96,8 @@ LIMIT 10000;
         sql,
         {
             "database_name": conn.database,
-            "start_datetime": start_datetime,
+            "since_datetime": since_datetime,
+            "before_datetime": before_datetime,
         },
     )
 
