@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import date, datetime
 
 import snowflake.connector
 from pydantic import BaseModel
@@ -45,6 +45,9 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
         warehouse=credentials.snowflake_warehouse,
     )
 
+def make_snowflake_mapping_schema(info_schema: dict) -> MappingSchema:
+    return MappingSchema(info_schema, dialect="snowflake")
+
 
 def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> list[EnrichedQueryRow]:
     res = []
@@ -67,8 +70,8 @@ def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> 
 
 def get_snowflake_queries(
     conn: SnowflakeConnection,
-    since_datetime: datetime,
-    before_datetime: datetime,
+    since_datetime: datetime | date,
+    before_datetime: datetime | date,
     database_name: str | None = None,
 ) -> list[QueryRow]:
     # Create a cursor object.
@@ -89,7 +92,7 @@ LIMIT 10000;
     cur.execute(
         sql,
         {
-            "database_name": conn.database,
+            "database_name": database_name,
             "since_datetime": since_datetime,
             "before_datetime": before_datetime,
         },
