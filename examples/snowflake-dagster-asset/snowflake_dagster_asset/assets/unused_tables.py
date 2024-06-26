@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from dagster import Config, asset
 from dagster_snowflake import SnowflakeResource
 
@@ -19,7 +21,9 @@ def unused_tables(
     snowflake: SnowflakeResource,
 ) -> None:
     with snowflake.get_connection() as conn:
-        queries = get_snowflake_queries(conn, config.since_days)
+        before_datetime = datetime.combine(datetime.today() + timedelta(days=1), datetime.max.time())
+        since_datetime = before_datetime - timedelta(days=config.since_days)
+        queries = get_snowflake_queries(conn, since_datetime, before_datetime)
         schema = get_snowflake_schema(conn)
 
     info_schema, info_schema_flat = build_info_schema(schema)
