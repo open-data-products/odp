@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "odp"
-version = "0.2.1"
+version = "0.3.0"
 description = "odp"
 authors = ["odp Authors <fdexter@metalytics.dev>"]
 repository = "https://github.com/open-data-products/odp"
