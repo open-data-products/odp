@@ -45,6 +45,7 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
         warehouse=credentials.snowflake_warehouse,
     )
 
+
 def make_snowflake_mapping_schema(info_schema: dict) -> MappingSchema:
     return MappingSchema(info_schema, dialect="snowflake")
 

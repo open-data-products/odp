@@ -195,7 +195,7 @@ def detect_unused_columns(
     info_schema: dict,
     info_schema_flat: list[tuple],
     dialect: Dialect,
-) -> tuple[list[tuple[str, str, str]], list[tuple[tuple, int]] | None]:
+) -> tuple[list[tuple], list[tuple[tuple, int]] | None]:
     cols = [
         extract_columns(
             query.QUERY_TEXT,
@@ -228,24 +228,16 @@ def detect_unused_tables(
     info_schema_flat: list[tuple],
     dialect: Dialect,
 ) -> tuple[list[tuple[str, str, str]], list[tuple[tuple, int]] | None]:
-    tables = [
-        extract_tables(
-            query.QUERY_TEXT,
-            catalog_name=query.DATABASE_NAME.upper() if query.DATABASE_NAME else None,
-            database_name=query.SCHEMA_NAME.upper() if query.SCHEMA_NAME else None,
-            schema=info_schema,
-            dialect=dialect,
-        )
-        for query in queries
-    ]
-
-    tbls = [item for sublist in tables for item in sublist]
-    table_counts = Counter(tbls)
+    table_counts = get_table_counts(
+        dialect=dialect,
+        info_schema=info_schema,
+        queries=queries,
+    )
 
     # Print the most common tables in a human-readable format with one table per line
     if len(table_counts) > 0:
         max_len = 20 if len(table_counts) > 20 else len(table_counts)
-        most_common_tables = table_counts.most_common(max_len)
+        most_common_tables: list[tuple[tuple, int]] | None = table_counts.most_common(max_len)
     else:
         most_common_tables = None
 
@@ -257,3 +249,23 @@ def detect_unused_tables(
     used_tables = set(table_counts.keys())
     unused_tables = sorted(info_schema_tables - used_tables)
     return unused_tables, most_common_tables
+
+
+def get_table_counts(
+    dialect: Dialect,
+    info_schema: dict,
+    queries: list[QueryRow],
+) -> Counter:
+    tables = [
+        extract_tables(
+            query.QUERY_TEXT,
+            catalog_name=query.DATABASE_NAME.upper() if query.DATABASE_NAME else None,
+            database_name=query.SCHEMA_NAME.upper() if query.SCHEMA_NAME else None,
+            schema=info_schema,
+            dialect=dialect,
+        )
+        for query in queries
+    ]
+    tbls = [item for sublist in tables for item in sublist]
+    table_counts = Counter(tbls)
+    return table_counts
