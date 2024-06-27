@@ -18,7 +18,6 @@ class SnowflakeCredentials(BaseModel):
     snowflake_warehouse: str | None = None
     snowflake_role: str | None = None
 
-
 def load_snowflake_credentials() -> SnowflakeCredentials:
     """
     Load snowflake credentials from env.
