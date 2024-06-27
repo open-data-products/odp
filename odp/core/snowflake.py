@@ -18,6 +18,7 @@ class SnowflakeCredentials(BaseModel):
     snowflake_warehouse: str | None = None
     snowflake_role: str | None = None
 
+
 def load_snowflake_credentials() -> SnowflakeCredentials:
     """
     Load snowflake credentials from env.
@@ -43,6 +44,7 @@ def get_snowflake_connection(credentials: SnowflakeCredentials) -> SnowflakeConn
         role=credentials.snowflake_role,
         warehouse=credentials.snowflake_warehouse,
     )
+
 
 def make_snowflake_mapping_schema(info_schema: dict) -> MappingSchema:
     return MappingSchema(info_schema, dialect="snowflake")

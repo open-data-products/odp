@@ -1,4 +1,4 @@
-from odp.core.detect_unused import detect_unused_tables, get_table_counts
+from odp.core.detect_unused import get_table_counts
 from odp.core.types import Dialect, QueryRow
 
 
@@ -15,7 +15,7 @@ def test_count_access():
             DATABASE_NAME="test_catalog",
             SCHEMA_NAME="test_db",
             START_TIME="2024-01-02 00:00:00",
-        )
+        ),
     ]
     info_schema = {
         "test_catalog": {
@@ -34,12 +34,8 @@ def test_count_access():
 
     dialect = Dialect.snowflake
 
-    counts = get_table_counts(
-        queries=queries, info_schema=info_schema, dialect=dialect
-    )
+    counts = get_table_counts(queries=queries, info_schema=info_schema, dialect=dialect)
 
     assert counts[("TEST_CATALOG", "TEST_DB", "TEST_TABLE")] == 2
     assert counts[("TEST_CATALOG", "TEST_DB", "TEST_TABLE_UNUSED")] == 0
     assert counts[("TEST_CATALOG", "TEST_DB", "NOT_IN_SCHEMA")] == 0
-
-
