@@ -25,15 +25,6 @@ dagster dev
 
 Open http://localhost:3000 with your browser to see the project.
 
-The project exposes a single asset, `unused_tables` - if you materialize this asset, you'll get a file at `data/staging/unused_tables.txt` that has a basic example of the CLI output:
+The project will scan for assets that have Snowflake table identifiers, query or metadata using `odp` and inject the relevant metadata back onto the asset.
 
-```
-Most common tables (20):
-('CATALOG', 'PUBLIC', 'AGG_DAILY'): 30
-('CATALOG', 'PUBLIC', 'BRAND'): 27
-...
-Unused tables (27):
-('CATALOG', 'PUBLIC', 'AD_CLICK')
-('CATALOG', 'PUBLIC', 'AD_COMBINED')
-('CATALOG', 'PUBLIC', 'AD_CONVERSION')
-```
+<img width="1288" alt="image" src="https://github.com/cmpadden/odp/assets/5807118/5f83fbef-32c6-46e1-9b37-8c0e7cbe0d7f">
