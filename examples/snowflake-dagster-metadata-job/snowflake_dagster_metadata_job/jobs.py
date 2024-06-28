@@ -74,10 +74,9 @@ def inject_odp_metadata(context: OpExecutionContext, snowflake: SnowflakeResourc
     with snowflake.get_connection() as conn:
         before_datetime = datetime.combine(datetime.today() + timedelta(days=1), datetime.max.time())
         since_datetime = before_datetime - timedelta(days=5)
+
         queries = get_snowflake_queries(conn, since_datetime, before_datetime)
-
         schema = _get_snowflake_schema_filtered(conn, [str(k) for k in snowflake_identifier_asset_mapping.keys()])
-
         info_schema, _ = build_info_schema(schema)
 
         table_counts = get_table_counts(
