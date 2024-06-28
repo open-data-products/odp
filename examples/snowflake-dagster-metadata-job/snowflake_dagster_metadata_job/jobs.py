@@ -1,27 +1,27 @@
+from datetime import datetime, timedelta
+from typing import Optional
+
 import pytz
 import snowflake.connector
-
-from datetime import datetime, timedelta
 from dagster import (
     AssetKey,
     AssetObservation,
     AssetSelection,
     JobDefinition,
-    OpExecutionContext,
     MetadataValue,
+    OpExecutionContext,
     job,
     op,
 )
 from dagster_snowflake import SnowflakeResource
+
 from odp.core.detect_unused import build_info_schema, get_table_counts
 from odp.core.snowflake import get_snowflake_queries
-from odp.core.types import Dialect
 from odp.core.types import Dialect, SchemaRow
+from snowflake_dagster_metadata_job.constants import META_KEY_STORAGE_IDENTIFIER, META_KEY_STORAGE_KIND
 
-from snowflake_dagster_metadata_job.constants import META_KEY_STORAGE_KIND, META_KEY_STORAGE_IDENTIFIER
 
-
-def _get_snowflake_schema_filtered(conn: snowflake.connector.SnowflakeConnection, tables: list[str] = []):
+def _get_snowflake_schema_filtered(conn: snowflake.connector.SnowflakeConnection, tables: Optional[list[str]] = None):
     """Retrieve column-level schema information filtered by `tables`.
 
     Args:
@@ -32,6 +32,9 @@ def _get_snowflake_schema_filtered(conn: snowflake.connector.SnowflakeConnection
         list[SchemaRow]: List of filtered schema information
 
     """
+    if tables is None:
+        tables = []
+
     tables = [t.upper() for t in tables]
 
     cur = conn.cursor()
@@ -85,7 +88,7 @@ def build_odp_snowflake_metadata_job(
         }
 
         snowflake_identifier_asset_mapping: dict[str, AssetKey] = {}
-        for asset_key in metadata_by_selected_asset_key.keys():
+        for asset_key in metadata_by_selected_asset_key:
             asset_metadata = metadata_by_selected_asset_key[asset_key]
 
             storage_kind = asset_metadata.get(META_KEY_STORAGE_KIND)
@@ -98,7 +101,7 @@ def build_odp_snowflake_metadata_job(
             since_datetime = before_datetime - timedelta(days=query_lookback_days)
 
             queries = get_snowflake_queries(conn, since_datetime, before_datetime)
-            schema = _get_snowflake_schema_filtered(conn, [str(k) for k in snowflake_identifier_asset_mapping.keys()])
+            schema = _get_snowflake_schema_filtered(conn, [str(k) for k in snowflake_identifier_asset_mapping])
             info_schema, _ = build_info_schema(schema)
 
             table_counts = get_table_counts(
@@ -115,8 +118,12 @@ def build_odp_snowflake_metadata_job(
                         metadata={
                             "odp/table_counts": table_count,
                             # `MetadataValue.timestamp` requires timezone
-                            "odp/metadata_datetime_before": MetadataValue.timestamp(pytz.timezone('UTC').localize(before_datetime)),
-                            "odp/metadata_datetime_since": MetadataValue.timestamp(pytz.timezone('UTC').localize(since_datetime)),
+                            "odp/metadata_datetime_before": MetadataValue.timestamp(
+                                pytz.timezone("UTC").localize(before_datetime)
+                            ),
+                            "odp/metadata_datetime_since": MetadataValue.timestamp(
+                                pytz.timezone("UTC").localize(since_datetime)
+                            ),
                         },
                     )
                 )
