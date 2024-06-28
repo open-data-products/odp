@@ -1,13 +1,5 @@
 # odp
 
-<!--
-[![Release](https://img.shields.io/github/v/release/open-data-products/odp)](https://img.shields.io/github/v/release/open-data-products/odp)
-[![Build status](https://img.shields.io/github/actions/workflow/status/open-data-products/odp/main.yml?branch=main)](https://github.com/open-data-products/odp/actions/workflows/main.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/open-data-products/odp/branch/main/graph/badge.svg)](https://codecov.io/gh/open-data-products/odp)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/open-data-products/odp)](https://img.shields.io/github/commit-activity/m/open-data-products/odp)
-[![License](https://img.shields.io/github/license/open-data-products/odp)](https://img.shields.io/github/license/open-data-products/odp)
--->
-
 - **Announcement Post**: <https://github.com/open-data-products/odp/blob/main/docs/announcement.md>
 
 Open Data Products (ODP) is a toolkit that helps data practitioners and data leaders better understand the value of their data. It can help teams understand what data is in use and who to talk to in order to understand which data is driving business value and why. For example, the detect-unused command can help find tables or columns that are unused within a certain time range (e.g. 60 days).
