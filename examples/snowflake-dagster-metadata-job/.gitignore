@@ -1,0 +1,4 @@
+.direnv/
+.envrc
+data/staging/*.txt
+tmp*/

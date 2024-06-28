@@ -1,19 +1,3 @@
-"""
-
-USAGE
-
-    dagster dev -f example-dagster-odp-sensor.py
-
-https://github.com/dagster-io/internal/discussions/9937
-
-To determine if an asset is associated with a Snowflake table, we can filter our assets that have
-the following metadata present:
-
-    "dagster/storage_kind": "snowflake"
-    "dagster/relation_identifier": "my_database.my_schema.my_table"
-
-"""
-
 from datetime import datetime, timedelta
 
 import snowflake.connector
@@ -21,11 +5,7 @@ import snowflake.connector
 from dagster import (
     AssetKey,
     AssetObservation,
-    Definitions,
-    EnvVar,
     OpExecutionContext,
-    ScheduleDefinition,
-    asset,
     job,
     op,
 )
@@ -35,49 +15,8 @@ from odp.core.snowflake import get_snowflake_queries
 from odp.core.types import Dialect
 from odp.core.types import Dialect, SchemaRow
 
-
-
-
-META_KEY_STORAGE_KIND = "dagster/storage_kind"
-META_KEY_STORAGE_IDENTIFIER = "dagster/relation_identifier"
-
-
-@asset(
-    metadata={
-        "dagster/storage_kind": "snowflake",
-        "dagster/relation_identifier": "sandbox.toys.orders",
-    }
-)
-def example_asset_1(): ...
-
-
-@asset(
-    metadata={
-        "dagster/storage_kind": "snowflake",
-        "dagster/relation_identifier": "snowflake.account_usage.query_history",
-    }
-)
-def example_asset_2(): ...
-
-
-@asset(
-    metadata={
-        "dagster/storage_kind": "bigquery",  # should be ignored as we only support Snowflake for now
-        "dagster/relation_identifier": "my_database.my_schema.my_table3",
-    }
-)
-def example_asset_3_bq(): ...
-
-
-all_assets = [example_asset_1, example_asset_2, example_asset_3_bq]
-
-snowflake_resource = SnowflakeResource(
-    account=EnvVar("SNOWFLAKE_ACCOUNT"),
-    user=EnvVar("SNOWFLAKE_USER"),
-    password=EnvVar("SNOWFLAKE_PASSWORD"),
-    database=EnvVar("SNOWFLAKE_DATABASE"),
-    warehouse=EnvVar("SNOWFLAKE_WAREHOUSE"),
-)
+from snowflake_dagster_metadata_job.assets import all_assets
+from snowflake_dagster_metadata_job.constants import META_KEY_STORAGE_KIND, META_KEY_STORAGE_IDENTIFIER
 
 
 def _get_snowflake_schema_filtered(conn: snowflake.connector.SnowflakeConnection, tables: list[str] = []):
@@ -155,17 +94,3 @@ def inject_odp_metadata(context: OpExecutionContext, snowflake: SnowflakeResourc
 @job
 def insights_odp_job():
     inject_odp_metadata()
-
-
-insights_odp_schedule = ScheduleDefinition(
-    job=insights_odp_job,
-    cron_schedule="0 0 * * *",
-)
-
-
-definitions = Definitions(
-    assets=all_assets,
-    jobs=[insights_odp_job],
-    schedules=[insights_odp_schedule],
-    resources={"snowflake": snowflake_resource},
-)
