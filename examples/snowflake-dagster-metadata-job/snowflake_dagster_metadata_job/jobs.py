@@ -1,11 +1,14 @@
-from datetime import datetime, timedelta
-
+import pytz
 import snowflake.connector
 
+from datetime import datetime, timedelta
 from dagster import (
     AssetKey,
     AssetObservation,
+    AssetSelection,
+    JobDefinition,
     OpExecutionContext,
+    MetadataValue,
     job,
     op,
 )
@@ -15,7 +18,6 @@ from odp.core.snowflake import get_snowflake_queries
 from odp.core.types import Dialect
 from odp.core.types import Dialect, SchemaRow
 
-from snowflake_dagster_metadata_job.assets import all_assets
 from snowflake_dagster_metadata_job.constants import META_KEY_STORAGE_KIND, META_KEY_STORAGE_IDENTIFIER
 
 
@@ -59,37 +61,68 @@ WHERE
     ]
 
 
-@op
-def inject_odp_metadata(context: OpExecutionContext, snowflake: SnowflakeResource):
-    # TODO - get all assets with `DagsterInstance.get_asset_keys()`
-    snowflake_identifier_asset_mapping: dict[str, AssetKey] = {}
-    for asset_def in all_assets:
-        asset_metadata = asset_def.metadata_by_key[asset_def.key]
+def build_odp_snowflake_metadata_job(
+    name: str, selection: AssetSelection, query_lookback_days: int = 5
+) -> JobDefinition:
+    """Creates a job that injects Snowflake metadata for given asset `selection`.
 
-        storage_kind = asset_metadata.get(META_KEY_STORAGE_KIND)
-        storage_identifier = asset_metadata.get(META_KEY_STORAGE_IDENTIFIER)
-        if storage_kind == "snowflake" and storage_identifier is not None:
-            snowflake_identifier_asset_mapping[storage_identifier.upper()] = asset_def.key
+    Args:
+        name (str): job name
+        selection (AssetSelection): assets to inject metadata
+        query_lookback_days (int): number of days to look a back for query insights
 
-    with snowflake.get_connection() as conn:
-        before_datetime = datetime.combine(datetime.today() + timedelta(days=1), datetime.max.time())
-        since_datetime = before_datetime - timedelta(days=5)
+    Returns:
+        JobDefinition: job that injects metadata onto assets
+    """
 
-        queries = get_snowflake_queries(conn, since_datetime, before_datetime)
-        schema = _get_snowflake_schema_filtered(conn, [str(k) for k in snowflake_identifier_asset_mapping.keys()])
-        info_schema, _ = build_info_schema(schema)
+    @op(name="odp_snowflake_metadata")
+    def _op(context: OpExecutionContext, snowflake: SnowflakeResource) -> None:
+        asset_graph = context.repository_def.asset_graph
+        all_specs = [asset_node.to_asset_spec() for asset_node in asset_graph.asset_nodes]
+        selected_asset_keys = selection.resolve(asset_graph)
+        metadata_by_selected_asset_key = {
+            spec.key: spec.metadata for spec in all_specs if spec.key in selected_asset_keys
+        }
 
-        table_counts = get_table_counts(
-            dialect=Dialect.snowflake,
-            info_schema=info_schema,
-            queries=queries,
-        )
+        snowflake_identifier_asset_mapping: dict[str, AssetKey] = {}
+        for asset_key in metadata_by_selected_asset_key.keys():
+            asset_metadata = metadata_by_selected_asset_key[asset_key]
 
-        for identifier, asset_key in snowflake_identifier_asset_mapping.items():
-            table_count = table_counts[tuple(identifier.split("."))]
-            context.log_event(AssetObservation(asset_key=asset_key, metadata={"odp/table_counts": table_count}))
+            storage_kind = asset_metadata.get(META_KEY_STORAGE_KIND)
+            storage_identifier = asset_metadata.get(META_KEY_STORAGE_IDENTIFIER)
+            if storage_kind == "snowflake" and storage_identifier is not None:
+                snowflake_identifier_asset_mapping[storage_identifier.upper()] = asset_key
 
+        with snowflake.get_connection() as conn:
+            before_datetime = datetime.combine(datetime.today() + timedelta(days=1), datetime.max.time())
+            since_datetime = before_datetime - timedelta(days=query_lookback_days)
 
-@job
-def insights_odp_job():
-    inject_odp_metadata()
+            queries = get_snowflake_queries(conn, since_datetime, before_datetime)
+            schema = _get_snowflake_schema_filtered(conn, [str(k) for k in snowflake_identifier_asset_mapping.keys()])
+            info_schema, _ = build_info_schema(schema)
+
+            table_counts = get_table_counts(
+                dialect=Dialect.snowflake,
+                info_schema=info_schema,
+                queries=queries,
+            )
+
+            for identifier, asset_key in snowflake_identifier_asset_mapping.items():
+                table_count = table_counts[tuple(identifier.split("."))]
+                context.log_event(
+                    AssetObservation(
+                        asset_key=asset_key,
+                        metadata={
+                            "odp/table_counts": table_count,
+                            # `MetadataValue.timestamp` requires timezone
+                            "odp/metadata_datetime_before": MetadataValue.timestamp(pytz.timezone('UTC').localize(before_datetime)),
+                            "odp/metadata_datetime_since": MetadataValue.timestamp(pytz.timezone('UTC').localize(since_datetime)),
+                        },
+                    )
+                )
+
+    @job(name=name)
+    def _job():
+        _op()
+
+    return _job
