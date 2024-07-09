@@ -65,7 +65,7 @@ WHERE
 
 
 def build_odp_snowflake_metadata_job(
-    name: str, selection: AssetSelection, query_lookback_days: int = 5
+    name: str, selection: AssetSelection, query_lookback_days: int = 14
 ) -> JobDefinition:
     """Creates a job that injects Snowflake metadata for given asset `selection`.
 
@@ -116,7 +116,7 @@ def build_odp_snowflake_metadata_job(
                     AssetObservation(
                         asset_key=asset_key,
                         metadata={
-                            "odp/table_counts": table_count,
+                            "odp/table_access_count": table_count,
                             # `MetadataValue.timestamp` requires timezone
                             "odp/metadata_datetime_before": MetadataValue.timestamp(
                                 pytz.timezone("UTC").localize(before_datetime)
