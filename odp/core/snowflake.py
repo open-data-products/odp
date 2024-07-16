@@ -30,7 +30,9 @@ def load_snowflake_credentials() -> SnowflakeCredentials:
         snowflake_user=os.getenv("ODP_SNOWFLAKE_USERNAME", os.getenv("SNOWFLAKE_USERNAME")),  # type: ignore[arg-type]
         snowflake_password=os.getenv("ODP_SNOWFLAKE_PASSWORD", os.getenv("SNOWFLAKE_PASSWORD")),  # type: ignore[arg-type]
         snowflake_database=os.getenv("ODP_SNOWFLAKE_DATABASE", os.getenv("SNOWFLAKE_DATABASE")),  # type: ignore[arg-type]
-        snowflake_warehouse=os.getenv("ODP_SNOWFLAKE_WAREHOUSE", os.getenv("SNOWFLAKE_WAREHOUSE")),
+        snowflake_warehouse=os.getenv(
+            "ODP_SNOWFLAKE_WAREHOUSE", os.getenv("SNOWFLAKE_WAREHOUSE")
+        ),
         snowflake_role=os.getenv("ODP_SNOWFLAKE_ROLE", os.getenv("SNOWFLAKE_ROLE")),
     )
 
@@ -50,7 +52,9 @@ def make_snowflake_mapping_schema(info_schema: dict) -> MappingSchema:
     return MappingSchema(info_schema, dialect="snowflake")
 
 
-def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> list[EnrichedQueryRow]:
+def parse_snowflake_query(
+    query_rows: list[QueryRow], schema: MappingSchema
+) -> list[EnrichedQueryRow]:
     res = []
     for row in query_rows:
         used_tables = extract_tables(
@@ -63,7 +67,9 @@ def parse_snowflake_query(query_rows: list[QueryRow], schema: MappingSchema) -> 
             DATABASE_NAME=row.DATABASE_NAME,
             SCHEMA_NAME=row.SCHEMA_NAME,
             START_TIME=row.START_TIME,
-            USED_TABLES=[".".join([part.upper() for part in table]) for table in used_tables],
+            USED_TABLES=[
+                ".".join([part.upper() for part in table]) for table in used_tables
+            ],
         )
         res.append(enriched_row)
     return res
@@ -91,7 +97,7 @@ WHERE QUERY_TEXT ILIKE '%%select%%'
 ORDER BY START_TIME DESC
 """
     if limit is not None:
-        sql += f"LIMIT {limit}"
+        sql += f" LIMIT {limit}"
 
     cur.execute(
         sql,
