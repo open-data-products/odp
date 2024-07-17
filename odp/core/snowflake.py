@@ -74,6 +74,7 @@ def get_snowflake_queries(
     since_datetime: datetime | date,
     before_datetime: datetime | date,
     database_name: str | None = None,
+    limit: int | None = None,
 ) -> list[QueryRow]:
     # Create a cursor object.
     cur = conn.cursor()
@@ -88,8 +89,10 @@ WHERE QUERY_TEXT ILIKE '%%select%%'
     AND START_TIME < %(before_datetime)s
     AND ERROR_CODE IS NULL
 ORDER BY START_TIME DESC
-LIMIT 10000;
-        """
+"""
+    if limit is not None:
+        sql += f" LIMIT {limit}"
+
     cur.execute(
         sql,
         {
